@@ -61,6 +61,7 @@ footer {
 
 /* 地图画框：占满可用宽度，超出时滚动 */
 .stage {
+  position: relative;
   width: 100%;
   padding: 0;
   background: var(--panel);
@@ -83,6 +84,18 @@ footer {
   image-rendering: pixelated;
   image-rendering: crisp-edges;
   background: #000;
+  cursor: crosshair;
+}
+
+/* 建筑高亮叠加层：和主画布同尺寸、同步缩放，但不吃鼠标事件 */
+#overlay {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: calc(100% * var(--zoom, 1));
+  height: auto;
+  image-rendering: pixelated;
+  pointer-events: none;
 }
 
 .toolbar {
@@ -144,6 +157,31 @@ footer {
   font-size: 11px;
   color: var(--muted);
   text-align: center;
+}
+
+/* 建筑信息面板 */
+.inspect {
+  width: 100%;
+  padding: 8px 12px;
+  background: rgba(23, 24, 36, 0.85);
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  text-align: center;
+}
+
+.inspect h2 {
+  margin: 0 0 3px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  color: #e8e8f0;
+}
+
+.inspect p {
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.7;
+  color: var(--muted);
 }
 
 .thumbs {

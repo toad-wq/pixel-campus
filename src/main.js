@@ -1,6 +1,7 @@
 import './style.css'
-import { WORLD_W, WORLD_H } from './ground.js'
+import { CELL, WORLD_W, WORLD_H } from './ground.js'
 import { CHUNK, CHUNKS_X, CHUNKS_Y, bakeChunk, clearCache } from './chunk.js'
+import { BUILDINGS, BUILDING_COUNT, clearCells, describe, paintCells, pickBuilding } from './inspect.js'
 
 const app = document.querySelector('#app')
 
@@ -12,6 +13,12 @@ app.innerHTML = `
 
   <div class="stage">
     <canvas id="world" width="${WORLD_W}" height="${WORLD_H}"></canvas>
+    <canvas id="overlay" width="${WORLD_W}" height="${WORLD_H}"></canvas>
+  </div>
+
+  <div id="inspect" class="inspect">
+    <h2 id="inspectTitle">建筑信息</h2>
+    <p id="inspectBody"></p>
   </div>
 
   <div class="toolbar">
@@ -111,6 +118,73 @@ function bakeAll() {
   renderThumbs()
   infoEl.textContent = `预烘焙 ${chunks.length} 块，总耗时 ${total.toFixed(1)}ms`
 }
+
+// —— 建筑信息层：点一下楼，就在面板里看它是第几号、多大、叫什么 ——
+const overlay = document.querySelector('#overlay')
+const inspectTitle = document.querySelector('#inspectTitle')
+const inspectBody = document.querySelector('#inspectBody')
+
+let hovered = null
+let selected = null
+
+function showDefaultInspect() {
+  const named = BUILDINGS.filter((b) => b.name).length
+  inspectTitle.textContent = '建筑信息'
+  inspectBody.textContent =
+    `认出了 ${BUILDING_COUNT} 栋楼，其中 ${named} 栋有名字。` +
+    '点一下楼看编号 —— 名字和一句话简介在 src/buildings.json 里填。'
+}
+
+function showInspect(target) {
+  if (!target) return showDefaultInspect()
+  const d = describe(target.building, target.bbox, target.cells)
+  inspectTitle.textContent = d.title
+  inspectBody.textContent = d.lines.join(' · ')
+}
+
+function drawOverlay() {
+  clearCells(overlay)
+  if (selected) paintCells(overlay, selected.cells, 'rgba(255, 214, 92, 0.42)', 'rgba(255, 214, 92, 0.9)')
+  if (hovered) paintCells(overlay, hovered.cells, 'rgba(255, 255, 255, 0.2)', 'rgba(255, 255, 255, 0.75)')
+}
+
+function cellUnder(ev) {
+  const rect = world.getBoundingClientRect()
+  const x = ((ev.clientX - rect.left) / rect.width) * world.width
+  const y = ((ev.clientY - rect.top) / rect.height) * world.height
+  return { cx: Math.floor(x / CELL), cy: Math.floor(y / CELL) }
+}
+
+function isSame(a, b) {
+  if (a === b) return true
+  if (!a || !b) return false
+  return a.cells.length === b.cells.length && a.cells[0] === b.cells[0]
+}
+
+world.addEventListener('pointermove', (ev) => {
+  const { cx, cy } = cellUnder(ev)
+  const hit = pickBuilding(cx, cy)
+  if (isSame(hit, hovered)) return
+  hovered = hit
+  drawOverlay()
+  showInspect(selected || hovered)
+})
+
+world.addEventListener('pointerleave', () => {
+  hovered = null
+  drawOverlay()
+  showInspect(selected)
+})
+
+world.addEventListener('click', (ev) => {
+  const { cx, cy } = cellUnder(ev)
+  const hit = pickBuilding(cx, cy)
+  selected = isSame(hit, selected) ? null : hit
+  drawOverlay()
+  showInspect(selected)
+})
+
+showDefaultInspect()
 
 boundsBox.addEventListener('change', compose)
 document.querySelector('#rebake').addEventListener('click', bakeAll)

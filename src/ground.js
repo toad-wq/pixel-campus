@@ -19,7 +19,7 @@ export const CAT = {
   BLUE: 4,
 }
 
-const GRID = Uint8Array.from(atob(CATS), (c) => c.charCodeAt(0))
+export const GRID = Uint8Array.from(atob(CATS), (c) => c.charCodeAt(0))
 
 function hash2(x, y) {
   let h = Math.imul(x | 0, 374761393) ^ Math.imul(y | 0, 668265263)

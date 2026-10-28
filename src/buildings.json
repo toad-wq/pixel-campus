@@ -1,0 +1,502 @@
+[
+  {
+    "id": "b01",
+    "cat": "teach",
+    "cell": [
+      97,
+      37,
+      34,
+      23
+    ],
+    "world": [
+      388,
+      148,
+      136,
+      92
+    ],
+    "cells": 334,
+    "fill": 0.43,
+    "name": null,
+    "intro": null
+  },
+  {
+    "id": "b02",
+    "cat": "teach",
+    "cell": [
+      30,
+      45,
+      41,
+      31
+    ],
+    "world": [
+      120,
+      180,
+      164,
+      124
+    ],
+    "cells": 810,
+    "fill": 0.64,
+    "name": null,
+    "intro": null
+  },
+  {
+    "id": "b03",
+    "cat": "teach",
+    "cell": [
+      133,
+      59,
+      19,
+      9
+    ],
+    "world": [
+      532,
+      236,
+      76,
+      36
+    ],
+    "cells": 142,
+    "fill": 0.83,
+    "name": null,
+    "intro": null
+  },
+  {
+    "id": "b04",
+    "cat": "teach",
+    "cell": [
+      76,
+      60,
+      26,
+      16
+    ],
+    "world": [
+      304,
+      240,
+      104,
+      64
+    ],
+    "cells": 210,
+    "fill": 0.5,
+    "name": null,
+    "intro": null
+  },
+  {
+    "id": "b05",
+    "cat": "teach",
+    "cell": [
+      22,
+      73,
+      6,
+      6
+    ],
+    "world": [
+      88,
+      292,
+      24,
+      24
+    ],
+    "cells": 30,
+    "fill": 0.83,
+    "name": null,
+    "intro": null
+  },
+  {
+    "id": "b06",
+    "cat": "teach",
+    "cell": [
+      148,
+      75,
+      18,
+      11
+    ],
+    "world": [
+      592,
+      300,
+      72,
+      44
+    ],
+    "cells": 131,
+    "fill": 0.66,
+    "name": null,
+    "intro": null
+  },
+  {
+    "id": "b07",
+    "cat": "teach",
+    "cell": [
+      134,
+      78,
+      5,
+      4
+    ],
+    "world": [
+      536,
+      312,
+      20,
+      16
+    ],
+    "cells": 18,
+    "fill": 0.9,
+    "name": null,
+    "intro": null
+  },
+  {
+    "id": "b08",
+    "cat": "dorm",
+    "cell": [
+      32,
+      79,
+      15,
+      30
+    ],
+    "world": [
+      128,
+      316,
+      60,
+      120
+    ],
+    "cells": 323,
+    "fill": 0.72,
+    "name": null,
+    "intro": null
+  },
+  {
+    "id": "b09",
+    "cat": "dorm",
+    "cell": [
+      19,
+      80,
+      13,
+      29
+    ],
+    "world": [
+      76,
+      320,
+      52,
+      116
+    ],
+    "cells": 318,
+    "fill": 0.84,
+    "name": null,
+    "intro": null
+  },
+  {
+    "id": "b10",
+    "cat": "dorm",
+    "cell": [
+      53,
+      81,
+      18,
+      29
+    ],
+    "world": [
+      212,
+      324,
+      72,
+      116
+    ],
+    "cells": 411,
+    "fill": 0.79,
+    "name": null,
+    "intro": null
+  },
+  {
+    "id": "b11",
+    "cat": "teach",
+    "cell": [
+      75,
+      81,
+      14,
+      7
+    ],
+    "world": [
+      300,
+      324,
+      56,
+      28
+    ],
+    "cells": 72,
+    "fill": 0.73,
+    "name": null,
+    "intro": null
+  },
+  {
+    "id": "b12",
+    "cat": "teach",
+    "cell": [
+      134,
+      84,
+      8,
+      5
+    ],
+    "world": [
+      536,
+      336,
+      32,
+      20
+    ],
+    "cells": 34,
+    "fill": 0.85,
+    "name": null,
+    "intro": null
+  },
+  {
+    "id": "b13",
+    "cat": "teach",
+    "cell": [
+      204,
+      86,
+      14,
+      7
+    ],
+    "world": [
+      816,
+      344,
+      56,
+      28
+    ],
+    "cells": 75,
+    "fill": 0.77,
+    "name": null,
+    "intro": null
+  },
+  {
+    "id": "b14",
+    "cat": "teach",
+    "cell": [
+      78,
+      96,
+      8,
+      2
+    ],
+    "world": [
+      312,
+      384,
+      32,
+      8
+    ],
+    "cells": 16,
+    "fill": 1,
+    "name": null,
+    "intro": null
+  },
+  {
+    "id": "b15",
+    "cat": "teach",
+    "cell": [
+      133,
+      97,
+      11,
+      5
+    ],
+    "world": [
+      532,
+      388,
+      44,
+      20
+    ],
+    "cells": 55,
+    "fill": 1,
+    "name": null,
+    "intro": null
+  },
+  {
+    "id": "b16",
+    "cat": "teach",
+    "cell": [
+      116,
+      98,
+      10,
+      6
+    ],
+    "world": [
+      464,
+      392,
+      40,
+      24
+    ],
+    "cells": 52,
+    "fill": 0.87,
+    "name": null,
+    "intro": null
+  },
+  {
+    "id": "b17",
+    "cat": "teach",
+    "cell": [
+      77,
+      100,
+      9,
+      8
+    ],
+    "world": [
+      308,
+      400,
+      36,
+      32
+    ],
+    "cells": 71,
+    "fill": 0.99,
+    "name": null,
+    "intro": null
+  },
+  {
+    "id": "b18",
+    "cat": "teach",
+    "cell": [
+      174,
+      102,
+      25,
+      7
+    ],
+    "world": [
+      696,
+      408,
+      100,
+      28
+    ],
+    "cells": 145,
+    "fill": 0.83,
+    "name": null,
+    "intro": null
+  },
+  {
+    "id": "b19",
+    "cat": "teach",
+    "cell": [
+      203,
+      106,
+      13,
+      6
+    ],
+    "world": [
+      812,
+      424,
+      52,
+      24
+    ],
+    "cells": 56,
+    "fill": 0.72,
+    "name": null,
+    "intro": null
+  },
+  {
+    "id": "b20",
+    "cat": "teach",
+    "cell": [
+      150,
+      112,
+      4,
+      9
+    ],
+    "world": [
+      600,
+      448,
+      16,
+      36
+    ],
+    "cells": 36,
+    "fill": 1,
+    "name": null,
+    "intro": null
+  },
+  {
+    "id": "b21",
+    "cat": "teach",
+    "cell": [
+      200,
+      114,
+      17,
+      7
+    ],
+    "world": [
+      800,
+      456,
+      68,
+      28
+    ],
+    "cells": 92,
+    "fill": 0.77,
+    "name": null,
+    "intro": null
+  },
+  {
+    "id": "b22",
+    "cat": "teach",
+    "cell": [
+      148,
+      121,
+      19,
+      14
+    ],
+    "world": [
+      592,
+      484,
+      76,
+      56
+    ],
+    "cells": 118,
+    "fill": 0.44,
+    "name": null,
+    "intro": null
+  },
+  {
+    "id": "b23",
+    "cat": "teach",
+    "cell": [
+      168,
+      124,
+      15,
+      11
+    ],
+    "world": [
+      672,
+      496,
+      60,
+      44
+    ],
+    "cells": 105,
+    "fill": 0.64,
+    "name": null,
+    "intro": null
+  },
+  {
+    "id": "b24",
+    "cat": "teach",
+    "cell": [
+      148,
+      127,
+      11,
+      6
+    ],
+    "world": [
+      592,
+      508,
+      44,
+      24
+    ],
+    "cells": 66,
+    "fill": 1,
+    "name": null,
+    "intro": null
+  },
+  {
+    "id": "b25",
+    "cat": "dorm",
+    "cell": [
+      148,
+      135,
+      11,
+      2
+    ],
+    "world": [
+      592,
+      540,
+      44,
+      8
+    ],
+    "cells": 18,
+    "fill": 0.82,
+    "name": null,
+    "intro": null
+  }
+]
