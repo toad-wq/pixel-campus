@@ -5,6 +5,8 @@
   --line: #2a2c3d;
   --text: #c9c9d6;
   --muted: #7a7d92;
+  --world-ratio: 1.43; /* 地图宽高比，main.js 会按真实尺寸覆盖 */
+  --stage-h: 72vh; /* 画框可用高度，宽高比和它一起决定画框尺寸 */
 }
 
 * {
@@ -59,10 +61,14 @@ footer {
   color: var(--muted);
 }
 
-/* 地图画框：占满可用宽度，超出时滚动 */
+/* 地图画框：宽高比跟着地图走，被 72vh 卡住时宽度一起收，永远不留黑边 */
 .stage {
   position: relative;
   width: 100%;
+  max-width: calc(var(--stage-h, 72vh) * var(--world-ratio, 1.43));
+  max-height: var(--stage-h, 72vh);
+  aspect-ratio: var(--world-ratio, 1.43);
+  overflow: hidden;
   padding: 0;
   background: var(--panel);
   border: 2px solid var(--line);
@@ -70,17 +76,34 @@ footer {
   box-shadow:
     0 24px 60px rgba(0, 0, 0, 0.55),
     inset 0 0 0 1px rgba(255, 255, 255, 0.03);
-  max-height: 72vh;
-  overflow: auto;
+  cursor: grab;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
   overscroll-behavior: contain;
-  -webkit-overflow-scrolling: touch;
 }
 
-/* 主画布：宽度随屏幕自适应，缩放只改宽度 */
+.stage.is-dragging {
+  cursor: grabbing;
+}
+
+/* 地图本体：固定世界尺寸，平移缩放全部靠 transform（不重排、不重画） */
+.map {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform-origin: 0 0;
+  will-change: transform;
+}
+
+/* 主画布：1:1 贴着世界尺寸，由 .map 的 transform 缩放 */
 #world {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
   display: block;
-  width: calc(100% * var(--zoom, 1));
-  height: auto;
   image-rendering: pixelated;
   image-rendering: crisp-edges;
   background: #000;
@@ -92,9 +115,60 @@ footer {
   position: absolute;
   left: 0;
   top: 0;
-  width: calc(100% * var(--zoom, 1));
-  height: auto;
+  width: 100%;
+  height: 100%;
   image-rendering: pixelated;
+  pointer-events: none;
+}
+
+/* 左下角坐标读数：报坐标、核对楼位都用得上 */
+.hud {
+  position: absolute;
+  left: 8px;
+  bottom: 8px;
+  padding: 3px 7px;
+  font-size: 10px;
+  letter-spacing: 0.5px;
+  color: #cfd2e0;
+  background: rgba(10, 11, 18, 0.62);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+  pointer-events: none;
+  backdrop-filter: blur(3px);
+}
+
+/* 右下角小地图：整张校园 + 当前视口方框 */
+.minimap {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  width: 22%;
+  max-width: 176px;
+  aspect-ratio: var(--world-ratio, 1.43);
+  overflow: hidden;
+  background: #000;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 4px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+  cursor: pointer;
+  touch-action: none;
+}
+
+.minimap:hover {
+  border-color: rgba(255, 220, 120, 0.6);
+}
+
+.minimap canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.minimap-box {
+  position: absolute;
+  border: 1px solid rgba(255, 220, 120, 0.95);
+  background: rgba(255, 220, 120, 0.12);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.35);
   pointer-events: none;
 }
 
@@ -184,6 +258,20 @@ footer {
   color: var(--muted);
 }
 
+/* 选中的楼用金色描边，和缩略图/图例的强调色一致 */
+.inspect[data-state='selected'] {
+  border-color: rgba(255, 214, 92, 0.45);
+  box-shadow: inset 0 0 0 1px rgba(255, 214, 92, 0.08);
+}
+
+.inspect[data-state='selected'] h2 {
+  color: #ffd65c;
+}
+
+.inspect[data-state='hover'] h2 {
+  color: #dfe3f0;
+}
+
 .thumbs {
   display: flex;
   flex-wrap: wrap;
@@ -263,8 +351,22 @@ footer {
   }
 
   .stage {
-    max-height: 66vh;
+    --stage-h: 66vh;
     border-radius: 4px;
+  }
+
+  .hud {
+    left: 5px;
+    bottom: 5px;
+    font-size: 9px;
+    padding: 2px 5px;
+  }
+
+  .minimap {
+    right: 5px;
+    bottom: 5px;
+    width: 28%;
+    max-width: 120px;
   }
 
   .toolbar {

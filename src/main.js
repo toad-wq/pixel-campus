@@ -2,8 +2,14 @@ import './style.css'
 import { CELL, WORLD_W, WORLD_H } from './ground.js'
 import { CHUNK, CHUNKS_X, CHUNKS_Y, bakeChunk, clearCache } from './chunk.js'
 import { BUILDINGS, BUILDING_COUNT, clearCells, describe, paintCells, pickBuilding } from './inspect.js'
+import { createViewport } from './viewport.js'
+import { createMinimap } from './minimap.js'
 
 const app = document.querySelector('#app')
+
+// 画框的宽高比跟着地图走：窄屏正好铺满宽度，宽屏被 72vh 卡住时宽度也一起收，
+// 这样任何窗口下地图都正好填满画框，不会出现大片黑边。
+document.documentElement.style.setProperty('--world-ratio', String(WORLD_W / WORLD_H))
 
 app.innerHTML = `
   <header>
@@ -11,9 +17,16 @@ app.innerHTML = `
     <p>延边大学建筑分布图 · 星露谷像素风重绘</p>
   </header>
 
-  <div class="stage">
-    <canvas id="world" width="${WORLD_W}" height="${WORLD_H}"></canvas>
-    <canvas id="overlay" width="${WORLD_W}" height="${WORLD_H}"></canvas>
+  <div class="stage" id="stage">
+    <div class="map" id="map">
+      <canvas id="world" width="${WORLD_W}" height="${WORLD_H}"></canvas>
+      <canvas id="overlay" width="${WORLD_W}" height="${WORLD_H}"></canvas>
+    </div>
+    <div class="hud" id="hud">格 —</div>
+    <div class="minimap" id="minimap" title="点一下跳过去">
+      <canvas id="minimapCanvas"></canvas>
+      <div class="minimap-box" id="minimapBox"></div>
+    </div>
   </div>
 
   <div id="inspect" class="inspect">
@@ -25,11 +38,11 @@ app.innerHTML = `
     <label><input type="checkbox" id="bounds" checked /> 显示分块边界</label>
     <button id="rebake" type="button">清空缓存 · 重新烘焙</button>
     <span class="zoom">
-      <button id="zoomOut" type="button" title="缩小">−</button>
+      <button id="zoomOut" type="button" title="缩小（减号）">−</button>
       <span id="zoomLabel">100%</span>
-      <button id="zoomIn" type="button" title="放大">+</button>
+      <button id="zoomIn" type="button" title="放大（加号）">+</button>
     </span>
-    <button id="zoomFit" type="button">适应屏幕</button>
+    <button id="zoomFit" type="button" title="适应屏幕（0）">适应屏幕</button>
   </div>
 
   <p id="info" class="info">准备中…</p>
@@ -44,18 +57,39 @@ app.innerHTML = `
     <li><i style="background:#4a6fa5"></i>宿舍楼</li>
   </ul>
 
-  <footer>每块只烘焙一次，之后只做 drawImage —— 这就是「烘焙式分块渲染」</footer>
+  <footer>拖拽平移 · 滚轮 / 双指缩放 · 双击放大 · 0 适应屏幕 · 方向键微调 —— 每块只烘焙一次，之后只做 drawImage</footer>
 `
 
+const stage = document.querySelector('#stage')
+const map = document.querySelector('#map')
 const world = document.querySelector('#world')
+const overlay = document.querySelector('#overlay')
 const ctx = world.getContext('2d')
 ctx.imageSmoothingEnabled = false
+
+map.style.width = `${WORLD_W}px`
+map.style.height = `${WORLD_H}px`
 
 const boundsBox = document.querySelector('#bounds')
 const infoEl = document.querySelector('#info')
 const thumbsEl = document.querySelector('#thumbs')
+const hud = document.querySelector('#hud')
+const zoomLabel = document.querySelector('#zoomLabel')
 
 let chunks = []
+let minimap = null
+
+// —— 视口：拖拽 / 滚轮 / 双指 / 键盘，只改 transform，不重画像素 ——
+const viewport = createViewport({
+  stage,
+  map,
+  worldW: WORLD_W,
+  worldH: WORLD_H,
+  onChange: ({ zoom }) => {
+    zoomLabel.textContent = Math.round(zoom * 100) + '%'
+    if (minimap) minimap.sync()
+  },
+})
 
 // 把纹理贴到主画布上（运行时每帧只做这件事）
 function compose() {
@@ -117,29 +151,38 @@ function bakeAll() {
   compose()
   renderThumbs()
   infoEl.textContent = `预烘焙 ${chunks.length} 块，总耗时 ${total.toFixed(1)}ms`
+  if (minimap) {
+    minimap.paintBase()
+    minimap.sync()
+  }
 }
 
 // —— 建筑信息层：点一下楼，就在面板里看它是第几号、多大、叫什么 ——
-const overlay = document.querySelector('#overlay')
+const inspectEl = document.querySelector('#inspect')
 const inspectTitle = document.querySelector('#inspectTitle')
 const inspectBody = document.querySelector('#inspectBody')
 
 let hovered = null
 let selected = null
 
-function showDefaultInspect() {
-  const named = BUILDINGS.filter((b) => b.name).length
-  inspectTitle.textContent = '建筑信息'
-  inspectBody.textContent =
-    `认出了 ${BUILDING_COUNT} 栋楼，其中 ${named} 栋有名字。` +
-    '点一下楼看编号 —— 名字和一句话简介在 src/buildings.json 里填。'
-}
-
-function showInspect(target) {
-  if (!target) return showDefaultInspect()
-  const d = describe(target.building, target.bbox, target.cells)
-  inspectTitle.textContent = d.title
-  inspectBody.textContent = d.lines.join(' · ')
+// 面板内容 = 「选中的楼」优先，没有选中就用「鼠标指着的楼」。
+// 顺手把状态写进 dataset：CSS 能据此高亮，自动化测试也能区分
+// 「只是悬停」和「真的选中了」——两者标题文字是一样的。
+function syncInspect() {
+  const target = selected || hovered
+  if (target) {
+    const d = describe(target.building, target.bbox, target.cells)
+    inspectTitle.textContent = d.title
+    inspectBody.textContent = d.lines.join(' · ')
+  } else {
+    const named = BUILDINGS.filter((b) => b.name).length
+    inspectTitle.textContent = '建筑信息'
+    inspectBody.textContent =
+      `认出了 ${BUILDING_COUNT} 栋楼，其中 ${named} 栋有名字。` +
+      '点一下楼看编号 —— 名字和一句话简介在 src/buildings.json 里填。'
+  }
+  inspectEl.dataset.state = selected ? 'selected' : hovered ? 'hover' : 'idle'
+  inspectEl.dataset.selected = selected ? selected.building?.id || 'unlisted' : ''
 }
 
 function drawOverlay() {
@@ -162,52 +205,50 @@ function isSame(a, b) {
 }
 
 world.addEventListener('pointermove', (ev) => {
+  if (viewport.getDragging()) return
   const { cx, cy } = cellUnder(ev)
+  hud.textContent = `格 ${cx}, ${cy} · 像素 ${cx * CELL}, ${cy * CELL}`
   const hit = pickBuilding(cx, cy)
   if (isSame(hit, hovered)) return
   hovered = hit
   drawOverlay()
-  showInspect(selected || hovered)
+  syncInspect()
 })
 
 world.addEventListener('pointerleave', () => {
+  hud.textContent = '格 —'
   hovered = null
   drawOverlay()
-  showInspect(selected)
+  syncInspect()
 })
 
 world.addEventListener('click', (ev) => {
+  if (viewport.takeDragFlag()) return // 刚刚是在拖地图，不是点建筑
   const { cx, cy } = cellUnder(ev)
   const hit = pickBuilding(cx, cy)
   selected = isSame(hit, selected) ? null : hit
   drawOverlay()
-  showInspect(selected)
+  syncInspect()
 })
 
-showDefaultInspect()
+syncInspect()
 
 boundsBox.addEventListener('change', compose)
 document.querySelector('#rebake').addEventListener('click', bakeAll)
+document.querySelector('#zoomIn').addEventListener('click', () => viewport.zoomIn())
+document.querySelector('#zoomOut').addEventListener('click', () => viewport.zoomOut())
+document.querySelector('#zoomFit').addEventListener('click', () => viewport.fit())
 
-// 缩放：默认适应屏幕（100%），可放大到 400%
-let zoom = 1
-const zoomLabel = document.querySelector('#zoomLabel')
-function applyZoom() {
-  document.documentElement.style.setProperty('--zoom', String(zoom))
-  zoomLabel.textContent = Math.round(zoom * 100) + '%'
-}
-document.querySelector('#zoomIn').addEventListener('click', () => {
-  zoom = Math.min(4, zoom + 0.25)
-  applyZoom()
+// —— 小地图：全图缩略 + 视口方框，点一下就跳过去 ——
+minimap = createMinimap({
+  el: document.querySelector('#minimap'),
+  canvas: document.querySelector('#minimapCanvas'),
+  box: document.querySelector('#minimapBox'),
+  world,
+  worldW: WORLD_W,
+  worldH: WORLD_H,
+  viewport,
 })
-document.querySelector('#zoomOut').addEventListener('click', () => {
-  zoom = Math.max(0.5, zoom - 0.25)
-  applyZoom()
-})
-document.querySelector('#zoomFit').addEventListener('click', () => {
-  zoom = 1
-  applyZoom()
-})
-applyZoom()
 
 bakeAll()
+viewport.fit()
