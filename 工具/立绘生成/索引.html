@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>立绘生成 · 照片转星露谷像素小人</title>
+  <link rel="stylesheet" href="./样式.css">
+</head>
+<body>
+  <header class="顶栏">
+    <div>
+      <h1>立绘生成</h1>
+      <p class="副标题">照片 → 星露谷风像素立绘 → 可直接进游戏的 sprite</p>
+    </div>
+    <span id="状态" class="徽标">检查服务中…</span>
+  </header>
+
+  <div id="沙箱提示" class="沙箱提示" hidden>
+    当前页面在<b>沙箱预览</b>里：浏览器存储被禁用、外网请求和下载多半也被限制。
+    <b>请用资源管理器双击打开这个 html 文件</b>（或拖进 Chrome/Edge），再跑生图。
+  </div>
+
+  <main class="两栏">
+    <section class="面板">
+      <div id="落区" class="落区" role="button" tabindex="0">
+        <input id="文件" type="file" accept="image/*" hidden>
+        <strong>点击或拖入一张照片</strong>
+        <small>正面、全身、光线均匀最好；手机自拍也行</small>
+      </div>
+
+      <div class="行">
+        <button id="示例" class="按钮" type="button">先看效果：载入示例照片</button>
+      </div>
+
+      <div class="行 选项行">
+        <label><input id="两段式" type="checkbox" checked> 两段式：先生成写实全身照，再转像素（更像本人，多花一次调用）</label>
+      </div>
+
+      <div class="行">
+        <button id="生成" class="按钮 主" type="button">① AI 生成像素立绘</button>
+        <button id="人设" class="按钮" type="button">② 生成人设卡</button>
+      </div>
+
+      <div class="行">
+        <button id="只跑第一步" class="按钮" type="button" title="只调用第 1 步，先看写实全身照对不对">只跑第 1 步（先看写实全身照）</button>
+      </div>
+      <p id="提示" class="提示">先上传照片。没配 key 也能用：下面的参数会直接在你上传的图上跑像素化。</p>
+
+      <ol id="直连步骤" class="小字 步骤" hidden>
+        <li>浏览器挂着代理：能直接打开 <code>generativelanguage.googleapis.com</code></li>
+        <li>下面「模型设置」选 <b>Google Gemini</b> → 粘 key → 点「保存并测试」</li>
+        <li>上传照片 → 点「① AI 生成像素立绘」</li>
+      </ol>
+
+      <details class="折叠" id="设置区">
+        <summary>模型设置（密钥只存服务端，不进浏览器）</summary>
+        <div class="设置体">
+          <label class="长">提供方
+            <select id="提供方"></select>
+          </label>
+          <label class="长">密钥 <input id="密钥" type="password" autocomplete="off" placeholder="粘贴 API key，保存后写到服务端 .env.local"></label>
+          <p class="小字">火山方舟：<code>console.volcengine.com/ark</code> → 开通「豆包 · Seedream」→ 创建 API Key；「图像模型」填推理接入点 ID（<code>ep-…</code>）。Gemini 的 key 在 <code>aistudio.google.com/apikey</code>。key 只存本机。</p>
+          <label class="长">代理 <input id="代理" autocomplete="off" placeholder="例如 http://127.0.0.1:7890（Clash 默认端口）；国内用 Gemini 必填"></label>
+          <label class="长">接口地址 <input id="地址" autocomplete="off" placeholder="仅「OpenAI 兼容」需要，例如 https://api.openai.com/v1"></label>
+          <label class="长">图像模型 <input id="图像模型" autocomplete="off" placeholder="gemini-3-pro-image-preview"></label>
+          <label class="长">文本模型 <input id="文本模型" autocomplete="off" placeholder="gemini-3-flash-preview"></label>
+          <div class="行">
+            <button id="保存设置" class="按钮 主" type="button">保存并测试</button>
+            <button id="测试" class="按钮" type="button">只测试连接</button>
+            <button id="清除密钥" class="按钮" type="button" title="把已保存的 key 删掉">清除密钥</button>
+          </div>
+          <p id="设置提示" class="提示"></p>
+          <div id="候选模型" class="候选"></div>
+          <div class="行">
+            <button id="诊断" class="按钮" type="button">显示诊断信息（排查用）</button>
+          </div>
+          <pre id="诊断输出" class="诊断" hidden></pre>
+        </div>
+      </details>
+
+      <details class="折叠">
+        <summary>生图提示词（可以改）</summary>
+        <textarea id="提示词" rows="9" spellcheck="false"></textarea>
+      </details>
+
+      <fieldset class="参数">
+        <legend>像素化参数</legend>
+
+        <label class="格">网格
+          <select id="网格">
+            <option value="32x32">32 × 32</option>
+            <option value="48x64" selected>48 × 64</option>
+            <option value="64x64">64 × 64</option>
+            <option value="96x96">96 × 96</option>
+          </select>
+        </label>
+
+        <label class="格">色板数 <input id="颜色数" type="range" min="4" max="48" value="24"><output id="颜色数值">24</output></label>
+
+        <label class="长"><input id="抖动" type="checkbox"> 抖动（Floyd–Steinberg）</label>
+        <label class="长"><input id="抠背景" type="checkbox" checked> 抠掉纯色背景（品红/绿幕）</label>
+
+        <label class="格">抠除容差 <input id="容差" type="range" min="10" max="160" value="64"><output id="容差值">64</output></label>
+
+        <label class="长"><input id="自动裁剪" type="checkbox" checked> 自动裁剪到主体</label>
+        <label class="长"><input id="对齐脚底" type="checkbox" checked> 脚底对齐（所有立绘共用一条地面线）</label>
+
+        <label class="格">缩放 <input id="缩放" type="range" min="50" max="300" value="100"><output id="缩放值">100%</output></label>
+        <label class="格">左右 <input id="偏移X" type="range" min="-50" max="50" value="0"><output id="偏移X值">0</output></label>
+        <label class="格">上下 <input id="偏移Y" type="range" min="-50" max="50" value="0"><output id="偏移Y值">0</output></label>
+
+        <label class="格">亮度 <input id="亮度" type="range" min="-60" max="60" value="0"><output id="亮度值">0</output></label>
+        <label class="格">对比 <input id="对比度" type="range" min="-60" max="60" value="0"><output id="对比度值">0</output></label>
+        <label class="格">饱和 <input id="饱和度" type="range" min="-60" max="60" value="0"><output id="饱和度值">0</output></label>
+      </fieldset>
+    </section>
+
+    <section class="面板 预览">
+      <div class="窗">
+        <span class="标签">原图 / 取景</span>
+        <canvas id="原图" width="320" height="400"></canvas>
+      </div>
+
+      <div class="窗 棋盘">
+        <span class="标签">结果 <b id="尺寸">48 × 64</b></span>
+        <canvas id="结果" width="288" height="384"></canvas>
+      </div>
+
+      <div id="色板" class="色板"></div>
+
+      <div class="行">
+        <button id="下载" class="按钮 主" type="button" disabled>下载 PNG</button>
+        <span id="信息" class="信息">还没有结果</span>
+      </div>
+
+      <p id="全身状态" class="小字"></p>
+      <button id="重试" class="按钮" type="button" hidden>它不像全身 · 用加强提示重试</button>
+
+      <div id="中间图" class="中间图" hidden>
+        <img id="中间图img" alt="第 1 步的写实全身照">
+        <div>
+          <p class="小字">第 1 步产物：写实全身照</p>
+          <p id="第一步状态" class="小字"></p>
+          <a id="下载全身" class="小字" download="全身照.png" href="#">下载这张全身照</a>
+        </div>
+      </div>
+
+      <div id="第一步操作" class="行" hidden>
+        <button id="只重做第一步" class="按钮" type="button">只重做第一步</button>
+        <button id="继续第二步" class="按钮 主" type="button">用这张全身照继续</button>
+      </div>
+
+      <div id="人设卡" class="人设卡" hidden></div>
+    </section>
+  </main>
+
+  <footer>本机跑：<code>node 工具/立绘生成/服务端.mjs</code> · 详细说明见 <code>工具/立绘生成/说明.md</code> · 版本 <b id="版本">—</b></footer>
+
+  <script type="module" src="./主程序.js"></script>
+</body>
+</html>

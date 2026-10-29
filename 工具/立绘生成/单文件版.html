@@ -1,0 +1,2419 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>立绘生成 · 照片转星露谷像素小人</title>
+  <style>
+/* 立绘生成 · 星露谷土黄面板风 */
+:root {
+  --底: #241d2b;
+  --面板: #f3ddb0;
+  --面板-深: #e7cb94;
+  --边: #6b3f1d;
+  --墨: #3b2a17;
+  --墨-淡: #7a5a33;
+  --绿: #3f8f3a;
+  --绿-亮: #4aa244;
+  --金: #b9762b;
+  --红: #a83b32;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 22px 20px 36px;
+  background:
+    radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.05) 1px, transparent 0) 0 0 / 14px 14px,
+    var(--底);
+  color: #f0e6d2;
+  font: 14px/1.6 "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+}
+
+.顶栏 {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  max-width: 1180px;
+  margin: 0 auto 18px;
+  flex-wrap: wrap;
+}
+
+.顶栏 h1 {
+  margin: 0;
+  font-size: 26px;
+  letter-spacing: 2px;
+  color: #ffe1a3;
+  text-shadow: 2px 2px 0 #5b3413;
+}
+
+.副标题 {
+  margin: 4px 0 0;
+  color: #c8b79c;
+  font-size: 13px;
+}
+
+.徽标 {
+  padding: 6px 12px;
+  border: 2px solid #5b3413;
+  border-radius: 3px;
+  background: #6b3f1d;
+  color: #ffe1a3;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.徽标.好 { background: var(--绿); border-color: #265c24; }
+.徽标.差 { background: var(--红); border-color: #6d2019; }
+
+.两栏 {
+  display: grid;
+  grid-template-columns: 390px minmax(0, 1fr);
+  gap: 18px;
+  max-width: 1180px;
+  margin: 0 auto;
+  align-items: start;
+}
+
+.面板 {
+  background: var(--面板);
+  border: 3px solid var(--边);
+  border-radius: 5px;
+  color: var(--墨);
+  padding: 14px;
+  box-shadow: 0 6px 0 rgba(0, 0, 0, 0.28), inset 0 0 0 2px #fbf0d4;
+}
+
+.预览 {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 14px;
+}
+
+.落区 {
+  display: grid;
+  place-content: center;
+  gap: 4px;
+  min-height: 116px;
+  padding: 14px;
+  text-align: center;
+  border: 3px dashed #a8794a;
+  border-radius: 4px;
+  background: #fbf0d4;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.落区:hover,
+.落区.悬停 {
+  background: #ffeec2;
+  border-color: var(--金);
+}
+
+.落区 strong { font-size: 15px; }
+.落区 small { color: var(--墨-淡); font-size: 12px; }
+
+.行 {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.按钮 {
+  flex: 1 1 auto;
+  padding: 9px 12px;
+  border: 2px solid #5b3413;
+  border-radius: 3px;
+  background: #c9a468;
+  color: #3b2a17;
+  font: 600 13px/1.2 inherit;
+  cursor: pointer;
+  box-shadow: 0 3px 0 #8a6431;
+  transition: transform 0.05s, box-shadow 0.05s, background 0.15s;
+}
+
+.按钮:hover { background: #d8b678; }
+.按钮:active { transform: translateY(2px); box-shadow: 0 1px 0 #8a6431; }
+
+.按钮.主 {
+  background: var(--绿);
+  border-color: #265c24;
+  box-shadow: 0 3px 0 #1f4a1e;
+  color: #f2f7ea;
+}
+
+.按钮.主:hover { background: var(--绿-亮); }
+.按钮:disabled { opacity: 0.45; cursor: not-allowed; box-shadow: none; }
+
+.提示 {
+  margin: 10px 0 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--墨-淡);
+  min-height: 18px;
+}
+
+.提示.坏 { color: var(--红); }
+.提示.好 { color: #2f6b2c; }
+
+.折叠 {
+  margin-top: 10px;
+  border: 2px solid #c8a877;
+  border-radius: 3px;
+  background: #fbf0d4;
+  padding: 6px 8px;
+}
+
+.折叠 summary { cursor: pointer; font-size: 12px; color: var(--墨-淡); }
+
+.折叠 textarea {
+  width: 100%;
+  margin-top: 6px;
+  padding: 8px;
+  border: 2px solid #c8a877;
+  border-radius: 3px;
+  background: #fffaf0;
+  color: #3b2a17;
+  font: 12px/1.5 ui-monospace, Consolas, "Courier New", monospace;
+  resize: vertical;
+}
+
+.设置体 {
+  display: grid;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.设置体 label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #513a1e;
+}
+
+.设置体 input,
+.设置体 select {
+  flex: 1;
+  min-width: 0;
+  padding: 4px 6px;
+  border: 2px solid #c8a877;
+  border-radius: 3px;
+  background: #fffaf0;
+  color: #3b2a17;
+  font: 12px/1.4 ui-monospace, Consolas, "Courier New", monospace;
+}
+
+.设置体 input:focus,
+.设置体 select:focus {
+  outline: 2px solid var(--金);
+  outline-offset: -1px;
+}
+
+.候选 {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.候选 button {
+  padding: 2px 6px;
+  border: 1px solid #c8a877;
+  border-radius: 3px;
+  background: #fffaf0;
+  color: #513a1e;
+  font: 11px/1.4 ui-monospace, Consolas, monospace;
+  cursor: pointer;
+}
+
+.候选 button:hover { background: #ffeec2; }
+
+.小字 {
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--墨-淡);
+}
+
+.小字 code {
+  padding: 0 3px;
+  border-radius: 2px;
+  background: #efe0bd;
+  color: #513a1e;
+}
+
+.小字.好 { color: #2f6b2c; }
+.小字.警示 { color: var(--红); }
+
+.步骤 {
+  margin: 8px 0 0;
+  padding: 8px 10px 8px 26px;
+  border: 2px dashed #c8a877;
+  border-radius: 4px;
+  background: #fbf0d4;
+  color: #513a1e;
+}
+
+.步骤 li { margin: 2px 0; }
+
+#重试 { width: 100%; margin-top: 4px; }
+
+.选项行 label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  line-height: 1.4;
+  color: #513a1e;
+  cursor: pointer;
+}
+
+.中间图 {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 8px;
+  border: 2px solid #c8a877;
+  border-radius: 4px;
+  background: #fbf0d4;
+}
+
+.中间图 img {
+  width: 72px;
+  height: auto;
+  border: 2px solid #6b3f1d;
+  border-radius: 2px;
+}
+
+.中间图 a {
+  color: #8a4b12;
+  text-decoration: underline;
+}
+
+.诊断 {
+  max-height: 220px;
+  overflow: auto;
+  margin: 6px 0 0;
+  padding: 8px;
+  border: 2px solid #c8a877;
+  border-radius: 3px;
+  background: #fffaf0;
+  color: #3b2a17;
+  font: 11px/1.5 ui-monospace, Consolas, monospace;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.参数 {
+  margin: 12px 0 0;
+  padding: 10px 12px 12px;
+  border: 2px solid #c8a877;
+  border-radius: 4px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 12px;
+}
+
+.参数 legend {
+  padding: 0 6px;
+  font-size: 12px;
+  color: var(--墨-淡);
+  letter-spacing: 1px;
+}
+
+.参数 label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #513a1e;
+}
+
+.参数 label.长 { grid-column: 1 / -1; }
+.参数 select { flex: 1; }
+.参数 output { min-width: 34px; text-align: right; color: var(--墨-淡); font-variant-numeric: tabular-nums; }
+
+.参数 input[type="range"] {
+  flex: 1;
+  min-width: 60px;
+  accent-color: var(--金);
+}
+
+.参数 input[type="checkbox"] { accent-color: var(--绿); }
+
+.参数 select {
+  padding: 3px 6px;
+  border: 2px solid #c8a877;
+  border-radius: 3px;
+  background: #fffaf0;
+  color: #3b2a17;
+  font: inherit;
+}
+
+.窗 {
+  position: relative;
+  display: grid;
+  place-items: center;
+  padding: 8px;
+  border: 2px solid #c8a877;
+  border-radius: 4px;
+  background: #fbf0d4;
+}
+
+.窗 canvas {
+  width: 100%;
+  height: auto;
+  max-height: 420px;
+  object-fit: contain;
+  image-rendering: pixelated;
+  background: #efe0bd;
+}
+
+.棋盘 canvas {
+  background-image:
+    linear-gradient(45deg, #ded0ae 25%, transparent 25%),
+    linear-gradient(-45deg, #ded0ae 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #ded0ae 75%),
+    linear-gradient(-45deg, transparent 75%, #ded0ae 75%);
+  background-size: 16px 16px;
+  background-position: 0 0, 0 8px, 8px -8px, -8px 0;
+}
+
+.标签 {
+  position: absolute;
+  top: -1px;
+  left: 8px;
+  transform: translateY(-50%);
+  padding: 1px 8px;
+  background: var(--面板);
+  border: 2px solid #c8a877;
+  border-radius: 10px;
+  font-size: 11px;
+  color: var(--墨-淡);
+}
+
+.色板 {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  min-height: 24px;
+}
+
+.色块 {
+  width: 24px;
+  height: 24px;
+  border: 2px solid #6b3f1d;
+  border-radius: 2px;
+  cursor: copy;
+  padding: 0;
+}
+
+.信息 {
+  flex: 1;
+  font-size: 12px;
+  color: var(--墨-淡);
+  text-align: right;
+}
+
+.人设卡 {
+  grid-column: 1 / -1;
+  padding: 10px 12px;
+  border: 2px solid #c8a877;
+  border-radius: 4px;
+  background: #fbf0d4;
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.人设卡 h3 {
+  margin: 0 0 6px;
+  font-size: 15px;
+  color: #513a1e;
+}
+
+.人设卡 p { margin: 2px 0; color: #513a1e; }
+.人设卡 i { color: var(--墨-淡); font-style: normal; }
+
+footer {
+  max-width: 1180px;
+  margin: 18px auto 0;
+  color: #8d7f6c;
+  font-size: 12px;
+}
+
+footer code {
+  padding: 1px 5px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #d9c9a8;
+}
+
+@media (max-width: 900px) {
+  .两栏 { grid-template-columns: 1fr; }
+  .预览 { grid-template-columns: 1fr; }
+}
+
+.沙箱提示 {
+  max-width: 1180px;
+  margin: 0 auto 14px;
+  padding: 10px 14px;
+  border: 2px solid #a83b32;
+  border-radius: 4px;
+  background: #ffe9e6;
+  color: #7a2119;
+  font-size: 13px;
+  line-height: 1.6;
+}
+</style>
+</head>
+<body>
+  <header class="顶栏">
+    <div>
+      <h1>立绘生成</h1>
+      <p class="副标题">照片 → 星露谷风像素立绘 → 可直接进游戏的 sprite</p>
+    </div>
+    <span id="状态" class="徽标">检查服务中…</span>
+  </header>
+
+  <div id="沙箱提示" class="沙箱提示" hidden>
+    当前页面在<b>沙箱预览</b>里：浏览器存储被禁用、外网请求和下载多半也被限制。
+    <b>请用资源管理器双击打开这个 html 文件</b>（或拖进 Chrome/Edge），再跑生图。
+  </div>
+
+  <main class="两栏">
+    <section class="面板">
+      <div id="落区" class="落区" role="button" tabindex="0">
+        <input id="文件" type="file" accept="image/*" hidden>
+        <strong>点击或拖入一张照片</strong>
+        <small>正面、全身、光线均匀最好；手机自拍也行</small>
+      </div>
+
+      <div class="行">
+        <button id="示例" class="按钮" type="button">先看效果：载入示例照片</button>
+      </div>
+
+      <div class="行 选项行">
+        <label><input id="两段式" type="checkbox" checked> 两段式：先生成写实全身照，再转像素（更像本人，多花一次调用）</label>
+      </div>
+
+      <div class="行">
+        <button id="生成" class="按钮 主" type="button">① AI 生成像素立绘</button>
+        <button id="人设" class="按钮" type="button">② 生成人设卡</button>
+      </div>
+
+      <div class="行">
+        <button id="只跑第一步" class="按钮" type="button" title="只调用第 1 步，先看写实全身照对不对">只跑第 1 步（先看写实全身照）</button>
+      </div>
+      <p id="提示" class="提示">先上传照片。没配 key 也能用：下面的参数会直接在你上传的图上跑像素化。</p>
+
+      <ol id="直连步骤" class="小字 步骤" hidden>
+        <li>浏览器挂着代理：能直接打开 <code>generativelanguage.googleapis.com</code></li>
+        <li>下面「模型设置」选 <b>Google Gemini</b> → 粘 key → 点「保存并测试」</li>
+        <li>上传照片 → 点「① AI 生成像素立绘」</li>
+      </ol>
+
+      <details class="折叠" id="设置区">
+        <summary>模型设置（密钥只存服务端，不进浏览器）</summary>
+        <div class="设置体">
+          <label class="长">提供方
+            <select id="提供方"></select>
+          </label>
+          <label class="长">密钥 <input id="密钥" type="password" autocomplete="off" placeholder="粘贴 API key，保存后写到服务端 .env.local"></label>
+          <p class="小字">火山方舟：<code>console.volcengine.com/ark</code> → 开通「豆包 · Seedream」→ 创建 API Key；「图像模型」填推理接入点 ID（<code>ep-…</code>）。Gemini 的 key 在 <code>aistudio.google.com/apikey</code>。key 只存本机。</p>
+          <label class="长">代理 <input id="代理" autocomplete="off" placeholder="例如 http://127.0.0.1:7890（Clash 默认端口）；国内用 Gemini 必填"></label>
+          <label class="长">接口地址 <input id="地址" autocomplete="off" placeholder="仅「OpenAI 兼容」需要，例如 https://api.openai.com/v1"></label>
+          <label class="长">图像模型 <input id="图像模型" autocomplete="off" placeholder="gemini-3-pro-image-preview"></label>
+          <label class="长">文本模型 <input id="文本模型" autocomplete="off" placeholder="gemini-3-flash-preview"></label>
+          <div class="行">
+            <button id="保存设置" class="按钮 主" type="button">保存并测试</button>
+            <button id="测试" class="按钮" type="button">只测试连接</button>
+            <button id="清除密钥" class="按钮" type="button" title="把已保存的 key 删掉">清除密钥</button>
+          </div>
+          <p id="设置提示" class="提示"></p>
+          <div id="候选模型" class="候选"></div>
+          <div class="行">
+            <button id="诊断" class="按钮" type="button">显示诊断信息（排查用）</button>
+          </div>
+          <pre id="诊断输出" class="诊断" hidden></pre>
+        </div>
+      </details>
+
+      <details class="折叠">
+        <summary>生图提示词（可以改）</summary>
+        <textarea id="提示词" rows="9" spellcheck="false"></textarea>
+      </details>
+
+      <fieldset class="参数">
+        <legend>像素化参数</legend>
+
+        <label class="格">网格
+          <select id="网格">
+            <option value="32x32">32 × 32</option>
+            <option value="48x64" selected>48 × 64</option>
+            <option value="64x64">64 × 64</option>
+            <option value="96x96">96 × 96</option>
+          </select>
+        </label>
+
+        <label class="格">色板数 <input id="颜色数" type="range" min="4" max="48" value="24"><output id="颜色数值">24</output></label>
+
+        <label class="长"><input id="抖动" type="checkbox"> 抖动（Floyd–Steinberg）</label>
+        <label class="长"><input id="抠背景" type="checkbox" checked> 抠掉纯色背景（品红/绿幕）</label>
+
+        <label class="格">抠除容差 <input id="容差" type="range" min="10" max="160" value="64"><output id="容差值">64</output></label>
+
+        <label class="长"><input id="自动裁剪" type="checkbox" checked> 自动裁剪到主体</label>
+        <label class="长"><input id="对齐脚底" type="checkbox" checked> 脚底对齐（所有立绘共用一条地面线）</label>
+
+        <label class="格">缩放 <input id="缩放" type="range" min="50" max="300" value="100"><output id="缩放值">100%</output></label>
+        <label class="格">左右 <input id="偏移X" type="range" min="-50" max="50" value="0"><output id="偏移X值">0</output></label>
+        <label class="格">上下 <input id="偏移Y" type="range" min="-50" max="50" value="0"><output id="偏移Y值">0</output></label>
+
+        <label class="格">亮度 <input id="亮度" type="range" min="-60" max="60" value="0"><output id="亮度值">0</output></label>
+        <label class="格">对比 <input id="对比度" type="range" min="-60" max="60" value="0"><output id="对比度值">0</output></label>
+        <label class="格">饱和 <input id="饱和度" type="range" min="-60" max="60" value="0"><output id="饱和度值">0</output></label>
+      </fieldset>
+    </section>
+
+    <section class="面板 预览">
+      <div class="窗">
+        <span class="标签">原图 / 取景</span>
+        <canvas id="原图" width="320" height="400"></canvas>
+      </div>
+
+      <div class="窗 棋盘">
+        <span class="标签">结果 <b id="尺寸">48 × 64</b></span>
+        <canvas id="结果" width="288" height="384"></canvas>
+      </div>
+
+      <div id="色板" class="色板"></div>
+
+      <div class="行">
+        <button id="下载" class="按钮 主" type="button" disabled>下载 PNG</button>
+        <span id="信息" class="信息">还没有结果</span>
+      </div>
+
+      <p id="全身状态" class="小字"></p>
+      <button id="重试" class="按钮" type="button" hidden>它不像全身 · 用加强提示重试</button>
+
+      <div id="中间图" class="中间图" hidden>
+        <img id="中间图img" alt="第 1 步的写实全身照">
+        <div>
+          <p class="小字">第 1 步产物：写实全身照</p>
+          <p id="第一步状态" class="小字"></p>
+          <a id="下载全身" class="小字" download="全身照.png" href="#">下载这张全身照</a>
+        </div>
+      </div>
+
+      <div id="第一步操作" class="行" hidden>
+        <button id="只重做第一步" class="按钮" type="button">只重做第一步</button>
+        <button id="继续第二步" class="按钮 主" type="button">用这张全身照继续</button>
+      </div>
+
+      <div id="人设卡" class="人设卡" hidden></div>
+    </section>
+  </main>
+
+  <footer>本机跑：<code>node 工具/立绘生成/服务端.mjs</code> · 详细说明见 <code>工具/立绘生成/说明.md</code> · 版本 <b id="版本">—</b></footer>
+
+  <script>
+window.__离线 = true
+window.__直连 = true
+window.__示例图 = "data:image/png;base64,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"
+// 真像素化：把一张图压成「固定网格 + 有限色板」的 sprite。
+//
+// 顺序不能反：抠背景 → 按网格做区域平均降采样 → 限色板 → 最近邻放大。
+// 先放大再点上像素点，得到的是马赛克滤镜；先对齐网格再限色，才是像素画。
+//
+// 输入输出都是裸 RGBA（Uint8ClampedArray + 宽高），浏览器和 Node 都能跑，
+// 这样同一份代码既能给页面用，也能在命令行批处理。
+
+const 默认参数 = {
+  宽: 48,
+  高: 64,
+  颜色数: 24,
+  抖动: false,
+  抠背景: true,
+  容差: 64,
+  自动裁剪: true,
+  对齐脚底: true,
+  缩放: 1,
+  偏移X: 0,
+  偏移Y: 0,
+  亮度: 0,
+  对比度: 0,
+  饱和度: 0,
+}
+
+// 取像素，越界就夹到边上，省得每处都判空。
+function 取(数据, 宽, 高, x, y) {
+  const cx = x < 0 ? 0 : x >= 宽 ? 宽 - 1 : x
+  const cy = y < 0 ? 0 : y >= 高 ? 高 - 1 : y
+  const i = (cy * 宽 + cx) * 4
+  return [数据[i], 数据[i + 1], 数据[i + 2], 数据[i + 3]]
+}
+
+// 抠背景：拿外圈像素投票选出背景色，再把接近它的像素变成全透明。
+// AI 出图时我们要求纯品红背景，这一步就能一把抠干净；照片也能用，只是会抠掉接近的色块。
+function 抠背景(源, 容差 = 64) {
+  const { 数据, 宽, 高 } = 源
+  const 计数 = new Map()
+  const 投票 = (x, y) => {
+    const [r, g, b] = 取(数据, 宽, 高, x, y)
+    const 键 = ((r >> 4) << 8) | ((g >> 4) << 4) | (b >> 4)
+    const 项 = 计数.get(键) ?? { 数: 0, r: 0, g: 0, b: 0 }
+    项.数++
+    项.r += r
+    项.g += g
+    项.b += b
+    计数.set(键, 项)
+  }
+  const 边 = Math.max(1, Math.round(Math.min(宽, 高) * 0.02))
+  for (let x = 0; x < 宽; x++) {
+    for (let d = 0; d < 边; d++) {
+      投票(x, d)
+      投票(x, 高 - 1 - d)
+    }
+  }
+  for (let y = 0; y < 高; y++) {
+    for (let d = 0; d < 边; d++) {
+      投票(d, y)
+      投票(宽 - 1 - d, y)
+    }
+  }
+  let 最多 = null
+  for (const 项 of 计数.values()) if (!最多 || 项.数 > 最多.数) 最多 = 项
+  const 背景色 = [最多.r / 最多.数, 最多.g / 最多.数, 最多.b / 最多.数]
+
+  const 出 = new Uint8ClampedArray(数据.length)
+  let 抠掉 = 0
+  for (let i = 0; i < 数据.length; i += 4) {
+    const dr = 数据[i] - 背景色[0]
+    const dg = 数据[i + 1] - 背景色[1]
+    const db = 数据[i + 2] - 背景色[2]
+    const 距 = Math.sqrt(dr * dr + dg * dg + db * db)
+    出[i] = 数据[i]
+    出[i + 1] = 数据[i + 1]
+    出[i + 2] = 数据[i + 2]
+    if (距 <= 容差) {
+      出[i + 3] = 0
+      抠掉++
+    } else {
+      出[i + 3] = 数据[i + 3]
+    }
+  }
+  return {
+    图: { 数据: 出, 宽, 高 },
+    背景色,
+    抠除比例: 抠掉 / (宽 * 高),
+  }
+}
+
+// 把一个框收进画面内；放不下就等比缩小，别把长宽比弄坏。
+function 收进画面(框, 宽, 高) {
+  let w = 框.宽
+  let h = 框.高
+  const 比 = Math.min(1, 宽 / w, 高 / h)
+  w *= 比
+  h *= 比
+  let x = 框.x + (框.宽 - w) / 2
+  let y = 框.y + (框.高 - h) / 2
+  x = Math.min(Math.max(0, x), 宽 - w)
+  y = Math.min(Math.max(0, y), 高 - h)
+  return { x, y, 宽: w, 高: h }
+}
+
+// 自动裁剪：找不透明像素的包围盒，留一点边距，再按目标长宽比补成矩形。
+function 主体框(源, 宽高比) {
+  const { 数据, 宽, 高 } = 源
+  let x0 = 宽
+  let y0 = 高
+  let x1 = -1
+  let y1 = -1
+  for (let y = 0; y < 高; y++) {
+    for (let x = 0; x < 宽; x++) {
+      if (数据[(y * 宽 + x) * 4 + 3] > 8) {
+        if (x < x0) x0 = x
+        if (x > x1) x1 = x
+        if (y < y0) y0 = y
+        if (y > y1) y1 = y
+      }
+    }
+  }
+  if (x1 < 0) return null
+  const 边 = Math.round(Math.max(x1 - x0 + 1, y1 - y0 + 1) * 0.06)
+  x0 -= 边
+  y0 -= 边
+  x1 += 边
+  y1 += 边
+  const cx = (x0 + x1) / 2
+  const cy = (y0 + y1) / 2
+  let w = x1 - x0
+  let h = y1 - y0
+  if (w / h < 宽高比) w = h * 宽高比
+  else h = w / 宽高比
+  return 收进画面({ x: cx - w / 2, y: cy - h / 2, 宽: w, 高: h }, 宽, 高)
+}
+
+// 手动取景：整幅画面按目标长宽比居中裁一块，再叠缩放和偏移。
+function 取景框(宽, 高, 宽高比, 缩放 = 1, 偏移X = 0, 偏移Y = 0) {
+  let w = 宽
+  let h = 宽 / 宽高比
+  if (h > 高) {
+    h = 高
+    w = 高 * 宽高比
+  }
+  const 系数 = 1 / Math.max(0.2, 缩放)
+  w *= 系数
+  h *= 系数
+  return 收进画面(
+    { x: (宽 - w) / 2 + 偏移X * w, y: (高 - h) / 2 + 偏移Y * h, 宽: w, 高: h },
+    宽,
+    高,
+  )
+}
+
+// 区域平均降采样：每个目标像素吃掉框里一小块，按透明度加权平均。
+// 直接 drawImage 缩图会把透明边缘和背景色混进来，所以自己算。
+function 采样(源, 框, 宽, 高) {
+  const { 数据, 宽: 源宽, 高: 源高 } = 源
+  const 出 = new Uint8ClampedArray(宽 * 高 * 4)
+  const 块宽 = 框.宽 / 宽
+  const 块高 = 框.高 / 高
+  for (let y = 0; y < 高; y++) {
+    const y0 = 框.y + y * 块高
+    const y1 = y0 + 块高
+    for (let x = 0; x < 宽; x++) {
+      const x0 = 框.x + x * 块宽
+      const x1 = x0 + 块宽
+      let r = 0
+      let g = 0
+      let b = 0
+      let a = 0
+      let 数 = 0
+      const syStart = Math.max(0, Math.floor(y0))
+      const syEnd = Math.min(源高, Math.ceil(y1))
+      const sxStart = Math.max(0, Math.floor(x0))
+      const sxEnd = Math.min(源宽, Math.ceil(x1))
+      for (let sy = syStart; sy < syEnd; sy++) {
+        // 用像素中心判断落在块内，避免块边界重复计数
+        if (sy + 0.5 < y0 || sy + 0.5 >= y1) continue
+        for (let sx = sxStart; sx < sxEnd; sx++) {
+          if (sx + 0.5 < x0 || sx + 0.5 >= x1) continue
+          const i = (sy * 源宽 + sx) * 4
+          const al = 数据[i + 3] / 255
+          r += 数据[i] * al
+          g += 数据[i + 1] * al
+          b += 数据[i + 2] * al
+          a += al
+          数++
+        }
+      }
+      const 出i = (y * 宽 + x) * 4
+      if (!数 || a <= 0) continue
+      const 平均透明度 = a / 数
+      出[出i] = r / a
+      出[出i + 1] = g / a
+      出[出i + 2] = b / a
+      // 硬边：半透明一律砍成 0/255，否则放大后会出现一圈灰边
+      出[出i + 3] = 平均透明度 >= 0.4 ? 255 : 0
+    }
+  }
+  return { 数据: 出, 宽, 高 }
+}
+
+// 亮度 / 对比度 / 饱和度，参数都是 -100 ~ 100。
+function 调色(r, g, b, { 亮度, 对比度, 饱和度 }) {
+  const 灰 = 0.299 * r + 0.587 * g + 0.114 * b
+  const 饱和 = 1 + 饱和度 / 100
+  r = 灰 + (r - 灰) * 饱和
+  g = 灰 + (g - 灰) * 饱和
+  b = 灰 + (b - 灰) * 饱和
+  const 对比 = 1 + 对比度 / 100
+  const 加亮 = 亮度 * 1.28
+  const 夹 = (v) => (v < 0 ? 0 : v > 255 ? 255 : v)
+  return [夹((r - 128) * 对比 + 128 + 加亮), 夹((g - 128) * 对比 + 128 + 加亮), 夹((b - 128) * 对比 + 128 + 加亮)]
+}
+
+// 中位切分：不断把「颜色跨度最大」的盒子从中间切开，切到 K 个为止。
+// 比 k-means 快得多，而且对 3 千个像素的结果足够稳，不引入随机性。
+function 量程(点) {
+  let r0 = 255, g0 = 255, b0 = 255, r1 = 0, g1 = 0, b1 = 0
+  for (const p of 点) {
+    if (p[0] < r0) r0 = p[0]
+    if (p[0] > r1) r1 = p[0]
+    if (p[1] < g0) g0 = p[1]
+    if (p[1] > g1) g1 = p[1]
+    if (p[2] < b0) b0 = p[2]
+    if (p[2] > b1) b1 = p[2]
+  }
+  const 跨 = [r1 - r0, g1 - g0, b1 - b0]
+  let 通道 = 0
+  if (跨[1] > 跨[通道]) 通道 = 1
+  if (跨[2] > 跨[通道]) 通道 = 2
+  return { 通道, 跨度: 跨[通道] }
+}
+
+function 中位切分(点, K) {
+  if (!点.length) return []
+  let 盒 = [点.slice()]
+  while (盒.length < K) {
+    let 目标 = -1
+    let 最大 = -1
+    for (let i = 0; i < 盒.length; i++) {
+      if (盒[i].length < 2) continue
+      const { 跨度 } = 量程(盒[i])
+      if (跨度 > 最大) {
+        最大 = 跨度
+        目标 = i
+      }
+    }
+    if (目标 < 0) break
+    const 当前 = 盒[目标]
+    const { 通道 } = 量程(当前)
+    当前.sort((p, q) => p[通道] - q[通道])
+    const 中 = 当前.length >> 1
+    盒.splice(目标, 1, 当前.slice(0, 中), 当前.slice(中))
+  }
+  return 盒.map((b) => {
+    let r = 0
+    let g = 0
+    let bl = 0
+    for (const p of b) {
+      r += p[0]
+      g += p[1]
+      bl += p[2]
+    }
+    return [Math.round(r / b.length), Math.round(g / b.length), Math.round(bl / b.length)]
+  })
+}
+
+// 把每个像素压到最近的色板颜色；开了抖动就用 Floyd–Steinberg 扩散误差。
+function 最近色(色板, r, g, b) {
+  let 最好 = 0
+  let 最小 = Infinity
+  for (let i = 0; i < 色板.length; i++) {
+    const dr = r - 色板[i][0]
+    const dg = g - 色板[i][1]
+    const db = b - 色板[i][2]
+    const 距 = dr * dr + dg * dg + db * db
+    if (距 < 最小) {
+      最小 = 距
+      最好 = i
+    }
+  }
+  return 最好
+}
+
+function 映射(网格, 色板, 抖动) {
+  const { 数据, 宽, 高 } = 网格
+  const 出 = new Uint8ClampedArray(数据.length)
+  const 误差 = 抖动 ? new Float32Array(宽 * 高 * 3) : null
+  for (let y = 0; y < 高; y++) {
+    for (let x = 0; x < 宽; x++) {
+      const i = (y * 宽 + x) * 4
+      if (数据[i + 3] === 0) continue
+      let r = 数据[i]
+      let g = 数据[i + 1]
+      let b = 数据[i + 2]
+      if (误差) {
+        const e = (y * 宽 + x) * 3
+        r += 误差[e]
+        g += 误差[e + 1]
+        b += 误差[e + 2]
+      }
+      const 索引 = 最近色(色板, r, g, b)
+      const 选 = 色板[索引]
+      出[i] = 选[0]
+      出[i + 1] = 选[1]
+      出[i + 2] = 选[2]
+      出[i + 3] = 255
+      if (误差) {
+        const dr = r - 选[0]
+        const dg = g - 选[1]
+        const db = b - 选[2]
+        const 扩散 = (dx, dy, 权) => {
+          const nx = x + dx
+          const ny = y + dy
+          if (nx < 0 || nx >= 宽 || ny < 0 || ny >= 高) return
+          const e = (ny * 宽 + nx) * 3
+          误差[e] += dr * 权
+          误差[e + 1] += dg * 权
+          误差[e + 2] += db * 权
+        }
+        扩散(1, 0, 7 / 16)
+        扩散(-1, 1, 3 / 16)
+        扩散(0, 1, 5 / 16)
+        扩散(1, 1, 1 / 16)
+      }
+    }
+  }
+  return { 数据: 出, 宽, 高 }
+}
+
+// 全身校验：用几何特征判断「这张图是不是一个完整的全身立绘」。
+// 判据（针对抠完背景的图）：
+//   1. 主体高度占比要大（半身照通常也大，所以不够）
+//   2. 主体底部要贴着画面下沿（被裁掉腿的图往往也贴，所以还不够）
+//   3. 底部要变窄 —— 脚/腿比肩膀窄。半身照的底部是肩膀，这是最有效的区分点。
+function 分析全身(源) {
+  const { 数据, 宽, 高 } = 源
+  const 行宽 = new Int32Array(高)
+  let x0 = 宽
+  let y0 = 高
+  let x1 = -1
+  let y1 = -1
+  for (let y = 0; y < 高; y++) {
+    for (let x = 0; x < 宽; x++) {
+      if (数据[(y * 宽 + x) * 4 + 3] > 8) {
+        行宽[y]++
+        if (x < x0) x0 = x
+        if (x > x1) x1 = x
+        if (y < y0) y0 = y
+        if (y > y1) y1 = y
+      }
+    }
+  }
+  if (x1 < 0) return { 是全身: false, 说明: '没找到主体（背景被抠光了？）', 高度占比: 0, 底部宽度比: 1, 底部留白: 1 }
+
+  const 主体高 = y1 - y0 + 1
+  const 高度占比 = 主体高 / 高
+  let 最大行宽 = 0
+  for (let y = y0; y <= y1; y++) if (行宽[y] > 最大行宽) 最大行宽 = 行宽[y]
+  const 底段 = Math.max(1, Math.round(主体高 * 0.08))
+  let 底宽和 = 0
+  let 底行数 = 0
+  for (let y = Math.max(y0, y1 - 底段 + 1); y <= y1; y++) {
+    底宽和 += 行宽[y]
+    底行数++
+  }
+  const 底部宽度比 = 最大行宽 ? 底宽和 / 底行数 / 最大行宽 : 1
+  const 底部留白 = (高 - 1 - y1) / 高
+
+  const 通过 = 高度占比 > 0.5 && 底部留白 < 0.15 && 底部宽度比 < 0.8
+  const 部位 = []
+  if (高度占比 <= 0.5) 部位.push(`主体只占画面 ${(高度占比 * 100).toFixed(0)}%`)
+  if (底部留白 >= 0.15) 部位.push(`脚下空了 ${(底部留白 * 100).toFixed(0)}%`)
+  if (底部宽度比 >= 0.8) 部位.push(`底部和肩一样宽（${(底部宽度比 * 100).toFixed(0)}%），看着像半身`)
+
+  return {
+    是全身: 通过,
+    高度占比,
+    底部宽度比,
+    底部留白,
+    说明: 通过
+      ? `全身构图 OK（高占比 ${(高度占比 * 100).toFixed(0)}%，底部宽度 ${(底部宽度比 * 100).toFixed(0)}%）`
+      : `不像全身：${部位.join('；')}`,
+  }
+}
+
+// 脚底对齐：把最下面一行不透明像素压到画面底边，方便所有立绘共用同一条地面基线。
+// 只往下挪，不往上挪 —— 往上挪会把脚切掉。
+function 对齐脚底(网格, 底部留白 = 0) {
+  const { 数据, 宽, 高 } = 网格
+  let 底 = -1
+  for (let y = 高 - 1; y >= 0 && 底 < 0; y--) {
+    for (let x = 0; x < 宽; x++) {
+      if (数据[(y * 宽 + x) * 4 + 3] > 0) {
+        底 = y
+        break
+      }
+    }
+  }
+  const 目标 = 高 - 1 - Math.max(0, Math.min(底部留白, 高 - 2))
+  if (底 < 0 || 底 >= 目标) return 网格
+  const 移 = 目标 - 底
+  const 出 = new Uint8ClampedArray(数据.length)
+  for (let y = 0; y < 高; y++) {
+    const 源行 = y - 移
+    if (源行 < 0) continue
+    for (let x = 0; x < 宽; x++) {
+      const 源i = (源行 * 宽 + x) * 4
+      if (数据[源i + 3] === 0) continue
+      const 出i = (y * 宽 + x) * 4
+      出[出i] = 数据[源i]
+      出[出i + 1] = 数据[源i + 1]
+      出[出i + 2] = 数据[源i + 2]
+      出[出i + 3] = 255
+    }
+  }
+  return { 数据: 出, 宽, 高 }
+}
+
+// 主入口：源图 + 参数 → 网格 sprite + 色板 + 用到的取景框。
+function 处理(源, 参数 = {}) {
+  const p = { ...默认参数, ...参数 }
+  const 宽高比 = p.宽 / p.高
+  let 图 = 源
+  let 抠除比例 = 0
+  let 背景色 = null
+  if (p.抠背景) {
+    const 结果 = 抠背景(源, p.容差)
+    图 = 结果.图
+    抠除比例 = 结果.抠除比例
+    背景色 = 结果.背景色
+  }
+  const 框 =
+    (p.自动裁剪 ? 主体框(图, 宽高比) : null) ?? 取景框(图.宽, 图.高, 宽高比, p.缩放, p.偏移X, p.偏移Y)
+
+  const 网格 = 采样(图, 框, p.宽, p.高)
+  const 点 = []
+  for (let i = 0; i < 网格.数据.length; i += 4) {
+    if (网格.数据[i + 3] === 0) continue
+    const [r, g, b] = 调色(网格.数据[i], 网格.数据[i + 1], 网格.数据[i + 2], p)
+    网格.数据[i] = r
+    网格.数据[i + 1] = g
+    网格.数据[i + 2] = b
+    点.push([r, g, b])
+  }
+  const 色板 = 中位切分(点, Math.max(2, Math.min(p.颜色数, 点.length || 2)))
+  色板.sort((a, b) => 0.299 * a[0] + 0.587 * a[1] + 0.114 * a[2] - (0.299 * b[0] + 0.587 * b[1] + 0.114 * b[2]))
+  let 结果 = 映射(网格, 色板, p.抖动)
+  if (p.对齐脚底) 结果 = 对齐脚底(结果)
+  return {
+    宽: p.宽,
+    高: p.高,
+    数据: 结果.数据,
+    色板,
+    框,
+    背景色,
+    抠除比例,
+    有效像素: 点.length,
+  }
+}
+
+
+// 生图提示词：自拍 → 星露谷风「全身」像素立绘。
+//
+// 几个刻意的选择：
+//   1. 明说「输入可能是头像自拍，别沿用它的构图」—— 不写这句，模型会老老实实给你半身。
+//   2. 要纯品红背景（#FF00FF）—— 客户端按角落颜色一键抠掉；星露谷衣服里绿色多，不用绿幕。
+//   3. 全身 + 双脚入画 + A-pose —— 游戏里要站在地上，半身或者脚被裁掉都用不了。
+//   4. 4.5~5 头身 —— 星露谷的比例就是大头短腿，不写会得到写实八头身。
+//   5. 禁止抗锯齿和渐变 —— 这是「看起来像素」和「真是像素」的分水岭。
+
+const 生图提示词 = `Turn the photo into a Stardew Valley style pixel-art game character, as a FULL-BODY sprite.
+
+The input photo is most likely only a head-and-shoulders selfie. Do NOT keep its framing. Extend the person into a complete standing figure, from the top of the head down to the soles of both feet.
+
+Identity (must keep): same face shape, eyes, eyebrows, nose, mouth, hairstyle, hair color, skin tone, and any visible accessories such as glasses, earrings or a hat.
+Body: infer a plausible adult build from the face and shoulders. The whole body is visible — no crop anywhere.
+Pose: standing straight, facing the viewer, arms relaxed and slightly away from the torso (A-pose), both legs and both feet fully visible, feet about one foot-width apart.
+Proportions: about 4.5 to 5 heads tall, matching Stardew Valley's big-head short-legs look.
+Outfit: if the photo shows clothing, keep its colors and style; otherwise choose simple farm wear — shirt, overalls or trousers, and boots — in colors that suit the person.
+Style: 16-bit pixel art, thick dark 1px outline, 3-tone cel shading, limited warm palette, hard pixel edges, no anti-aliasing, no gradients, no ground shadow.
+Background: perfectly flat solid #FF00FF magenta — no scenery, no props, no vignette.
+Framing: the figure fills about 85% of the frame height, with a small even margin above the head and a clear empty margin below the feet.
+Do not draw text, UI, borders or watermarks.`
+
+// 两段式第一步：自拍 → 写实全身照。
+// 这一段只负责「把身体补出来、把人认住」，不管像素风；背景给纯色，方便第二步看图。
+const 全身照片提示词 = `Extend this selfie into a full-length photograph of the SAME person.
+
+Keep identity exactly: face shape, eyes, eyebrows, nose, mouth, hairstyle, hair color, skin tone, and any visible accessories such as glasses or earrings.
+Body: infer a natural adult body from the face and shoulders, realistic proportions (about 7 heads tall).
+Pose: standing straight, facing the camera, arms relaxed at the sides, both legs and both feet fully visible, feet slightly apart.
+Clothing: if the photo shows clothing, keep its colors and style; otherwise choose simple everyday clothes — a plain t-shirt or sweater, trousers or jeans, and sneakers — in neutral colors.
+Lighting: soft even daylight, no harsh shadow.
+Background: plain seamless light-gray studio background, no props, no text.
+Framing: full body, from the top of the head to the soles of both feet, with a little empty space above the head and below the feet.
+Photorealistic, sharp focus, 35mm photograph.`
+
+// 两段式第二步：写实全身照 → 像素立绘。
+// 输入已经是全身了，所以这段不再要求「补身体」，只要求「保持姿势和衣服、压成像素」。
+const 像素立绘提示词 = `Convert the full-body reference photo into a Stardew Valley style pixel-art character sprite.
+
+Keep: the same pose, the same outfit and its colors, the same hairstyle and skin tone, and a recognisable version of the face.
+Full body: the whole figure, from the top of the head to the soles of both feet. No crop anywhere.
+Style: 16-bit pixel art, thick dark 1px outline, 3-tone cel shading, limited warm palette, hard pixel edges, no anti-aliasing, no gradients, no ground shadow.
+Proportions: about 4.5 to 5 heads tall, matching Stardew Valley's big-head short-legs look.
+Background: perfectly flat solid #FF00FF magenta — no scenery, no props.
+Framing: the figure fills about 85% of the frame height, with a small margin above the head and below the feet.
+Do not draw text, UI, borders or watermarks.`
+
+// 全身校验没通过时，把这段接在后面重试一次。
+const 全身加强提示 = `The previous result was not a full body — the legs or feet were cut off by the frame.
+
+Redraw it as a true full-body sprite:
+- the entire figure, from the top of the head to the soles of BOTH feet, must fit inside the frame with empty margin below the feet;
+- do not zoom in on the upper body, do not crop at the hips, knees or ankles;
+- keep the face and hairstyle identical to the reference photo;
+- same flat #FF00FF background, same pixel-art style, same palette.`
+
+// 人设卡用（和立绘配套的右侧面板数据）。
+const 人设提示词 = `You are generating a Stardew Valley style NPC profile for the person in the photo.
+Reply with JSON only, no markdown fence, keys exactly:
+{"名字":"","等级":"Lv.1","职业":"","台词":"","生日":{"季节":"Spring|Summer|Fall|Winter","日":1},"性格":"","最爱的食物":"","喜欢":["","",""],"讨厌":["","",""],"宠物":{"名字":"","描述":""}}
+Rules: 名字用英文名；职业要像星露谷的职业（例如 Cartographer / Teen Tinkerer / Fisher）；台词一句英文，温柔或古怪；
+最爱的食物、喜欢、讨厌必须是星露谷里真实存在的物品；生日季节四选一，日 1-28；性格写成 1-2 句英文。`
+
+
+// 页面逻辑：上传 → （可选）调模型 → 本地像素化 → 预览 / 下载。
+// 所有像素运算都在 像素化.mjs 里，这里只管搬运和画布。
+
+
+const $ = (选择器) => document.querySelector(选择器)
+
+// 单文件版（直接双击 html）没有服务端：只跑本地像素化，示例图内嵌成 data URI。
+const 离线 = window.__离线 === true
+// 直连模式：没有服务端时，由浏览器自己调模型（key 存在当前浏览器的 localStorage）。
+const 直连 = window.__直连 === true
+const 示例地址 = 离线 && window.__示例图 ? window.__示例图 : './示例/示例照片.png'
+
+const 原图画布 = $('#原图')
+const 原图上下文 = 原图画布.getContext('2d')
+const 结果画布 = $('#结果')
+const 结果上下文 = 结果画布.getContext('2d')
+
+// 原生尺寸的离屏画布：putImageData 之后按整数倍最近邻放大，下载也从这里出。
+const 小画布 = document.createElement('canvas')
+const 小上下文 = 小画布.getContext('2d')
+
+let 源画布 = null
+let 源图 = null
+let 结果 = null
+let 忙 = false
+let 计时器 = 0
+
+const 版本 = 'v0.5'
+
+// 排查用：把关键步骤记下来，页面底部一点就能看到，不用开控制台
+const 诊断 = []
+function 记(事件, 细节 = '') {
+  const 时 = new Date().toTimeString().slice(0, 8)
+  诊断.push(`${时} ${事件}${细节 ? ' · ' + 细节 : ''}`)
+  if (诊断.length > 60) 诊断.shift()
+}
+
+$('#诊断').addEventListener('click', () => {
+  const 盒 = $('#诊断输出')
+  盒.hidden = false
+  盒.textContent = [
+    `版本 ${版本} · 离线=${离线} · 直连=${直连}`,
+    `UA ${navigator.userAgent}`,
+    `状态 ${JSON.stringify(当前状态 ?? null).slice(0, 400)}`,
+    `图片能力 createImageBitmap=${typeof createImageBitmap} Blob=${typeof Blob} URL.createObjectURL=${typeof URL?.createObjectURL}`,
+    '---',
+    ...诊断.slice(-40),
+  ].join('\n')
+})
+
+$('#提示词').value = 生图提示词
+
+function 提示(文字, 类别 = '') {
+  const 元素 = $('#提示')
+  元素.textContent = 文字
+  元素.className = `提示 ${类别}`
+}
+
+function 读参数() {
+  const [宽, 高] = $('#网格').value.split('x').map(Number)
+  return {
+    宽,
+    高,
+    颜色数: Number($('#颜色数').value),
+    抖动: $('#抖动').checked,
+    抠背景: $('#抠背景').checked,
+    容差: Number($('#容差').value),
+    自动裁剪: $('#自动裁剪').checked,
+    对齐脚底: $('#对齐脚底').checked,
+    缩放: Number($('#缩放').value) / 100,
+    偏移X: Number($('#偏移X').value) / 100,
+    偏移Y: Number($('#偏移Y').value) / 100,
+    亮度: Number($('#亮度').value),
+    对比度: Number($('#对比度').value),
+    饱和度: Number($('#饱和度').value),
+  }
+}
+
+function 重算() {
+  if (!源图) return
+  try {
+    结果 = 处理(源图, 读参数())
+  } catch (错误) {
+    提示(`像素化失败：${错误.message}`, '坏')
+    return
+  }
+  画原图()
+  画结果()
+  画色板()
+  $('#尺寸').textContent = `${结果.宽} × ${结果.高}`
+  $('#信息').textContent = `${结果.宽}×${结果.高} · ${结果.色板.length} 色 · 有效像素 ${结果.有效像素}`
+  $('#下载').disabled = false
+}
+
+function 排重算() {
+  clearTimeout(计时器)
+  计时器 = setTimeout(重算, 70)
+}
+
+// 原图 + 取景框。框是源图坐标系里的，要换算回画布坐标。
+function 画原图() {
+  const W = 原图画布.width
+  const H = 原图画布.height
+  原图上下文.clearRect(0, 0, W, H)
+  原图上下文.fillStyle = '#efe0bd'
+  原图上下文.fillRect(0, 0, W, H)
+  if (!源画布) return
+  const 比 = Math.min(W / 源画布.width, H / 源画布.height)
+  const w = 源画布.width * 比
+  const h = 源画布.height * 比
+  const ox = (W - w) / 2
+  const oy = (H - h) / 2
+  原图上下文.imageSmoothingEnabled = true
+  原图上下文.drawImage(源画布, ox, oy, w, h)
+  if (!结果) return
+
+  const 框 = 结果.框
+  const x = ox + 框.x * 比
+  const y = oy + 框.y * 比
+  const bw = 框.宽 * 比
+  const bh = 框.高 * 比
+  const 自动 = $('#自动裁剪').checked
+
+  if (!自动) {
+    原图上下文.save()
+    原图上下文.fillStyle = 'rgba(36, 29, 43, 0.55)'
+    原图上下文.beginPath()
+    原图上下文.rect(ox, oy, w, h)
+    原图上下文.rect(x, y, bw, bh)
+    原图上下文.fill('evenodd')
+    原图上下文.restore()
+  }
+  原图上下文.save()
+  原图上下文.strokeStyle = 自动 ? 'rgba(255, 212, 122, 0.55)' : '#ffd47a'
+  原图上下文.lineWidth = 2
+  原图上下文.setLineDash(自动 ? [5, 5] : [])
+  原图上下文.strokeRect(x + 1, y + 1, Math.max(1, bw - 2), Math.max(1, bh - 2))
+  原图上下文.restore()
+}
+
+// 结果：先 putImageData 到原生尺寸，再用 drawImage 关掉平滑放大。
+function 画结果() {
+  if (!结果) return
+  const 倍率 = Math.max(2, Math.min(12, Math.floor(360 / 结果.宽)))
+  const 宽 = 结果.宽 * 倍率
+  const 高 = 结果.高 * 倍率
+  if (结果画布.width !== 宽 || 结果画布.height !== 高) {
+    结果画布.width = 宽
+    结果画布.height = 高
+  }
+  小画布.width = 结果.宽
+  小画布.height = 结果.高
+  小上下文.putImageData(new ImageData(结果.数据, 结果.宽, 结果.高), 0, 0)
+
+  结果上下文.imageSmoothingEnabled = false
+  结果上下文.clearRect(0, 0, 宽, 高)
+  结果上下文.drawImage(小画布, 0, 0, 宽, 高)
+}
+
+function 画色板() {
+  const 容器 = $('#色板')
+  容器.textContent = ''
+  if (!结果) return
+  for (const [r, g, b] of 结果.色板) {
+    const 十六 = '#' + [r, g, b].map((v) => v.toString(16).padStart(2, '0')).join('')
+    const 块 = document.createElement('button')
+    块.type = 'button'
+    块.className = '色块'
+    块.style.background = 十六
+    块.title = `${十六}（点一下复制）`
+    块.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(十六)
+        提示(`复制了 ${十六}`, '好')
+      } catch {
+        提示(十六)
+      }
+    })
+    容器.append(块)
+  }
+}
+
+async function 收文件(文件) {
+  if (!文件) return
+  if (!文件.type.startsWith('image/')) return 提示('要图片文件', '坏')
+  try {
+    const 位图 = await createImageBitmap(文件)
+    装入(位图, 1280)
+    $('#全身状态').textContent = ''
+    $('#重试').hidden = true
+    隐藏中间图()
+    提示(`已载入 ${源图.宽}×${源图.高}`)
+  } catch (错误) {
+    提示(`读不了这张图：${错误.message}`, '坏')
+  }
+}
+
+// 把任意位图装成「源画布 + 源像素」。上限 1280 是为了让每次拖滑条都即时。 
+function 装入(位图, 上限) {
+  const 比 = Math.min(1, 上限 / Math.max(位图.width, 位图.height))
+  const w = Math.max(1, Math.round(位图.width * 比))
+  const h = Math.max(1, Math.round(位图.height * 比))
+  const 画布 = document.createElement('canvas')
+  画布.width = w
+  画布.height = h
+  const 上下文 = 画布.getContext('2d', { willReadFrequently: true })
+  上下文.drawImage(位图, 0, 0, w, h)
+  源画布 = 画布
+  源图 = { 数据: 上下文.getImageData(0, 0, w, h).data, 宽: w, 高: h }
+  重算()
+}
+
+// ---- 直连模式 ----
+// 没有服务端时，页面自己调服务商：key 只存在这台电脑的 localStorage，只发给你选的那一家。
+// 这条路是为了「双击一个 html 就能生图」，代价是 key 在浏览器里（本机自用没问题，别公开部署）。
+
+const 设置键 = '立绘生成-设置'
+
+const 直连示例人设 = {
+  名字: 'Elara',
+  等级: 'Lv.1',
+  职业: 'Cartographer',
+  台词: 'Greetings, friend. The world holds countless wonders, don’t you think?',
+  生日: { 季节: 'Spring', 日: 15 },
+  性格: 'A quiet soul with a keen eye for ancient tales and hidden paths.',
+  最爱的食物: 'Pumpkin Soup',
+  喜欢: ['Ancient Books', 'Blueberries', 'Coffee'],
+  讨厌: ['Mayonnaise', 'Soggy Newspaper', 'Seaweed'],
+  宠物: { 名字: 'Onyx', 描述: 'A sleek black cat with piercing green eyes.' },
+}
+
+// 沙箱预览（iframe 没有 allow-same-origin）里碰 localStorage 会直接抛错，
+// 所以这里做一层兜底：能存就存本地，不能存就只存内存，这次会话内照样能用。
+const 内存存储 = new Map()
+let 存储可用 = false
+try {
+  window.localStorage.setItem('__立绘探针', '1')
+  window.localStorage.removeItem('__立绘探针')
+  存储可用 = true
+} catch {
+  存储可用 = false
+}
+
+function 读存储(键) {
+  if (存储可用) {
+    try {
+      return window.localStorage.getItem(键)
+    } catch {
+      存储可用 = false
+    }
+  }
+  return 内存存储.has(键) ? 内存存储.get(键) : null
+}
+
+function 写存储(键, 值) {
+  if (存储可用) {
+    try {
+      window.localStorage.setItem(键, 值)
+      return
+    } catch {
+      存储可用 = false
+    }
+  }
+  内存存储.set(键, 值)
+}
+
+function 本地设置() {
+  try {
+    return JSON.parse(读存储(设置键) ?? '{}') ?? {}
+  } catch {
+    return {}
+  }
+}
+
+function 存本地设置(部分) {
+  const 新 = { ...本地设置() }
+  if (部分?.清空密钥) delete 新.密钥
+  for (const 键 of ['提供方', '密钥', '地址', '图像模型', '文本模型']) {
+    if (typeof 部分?.[键] !== 'string') continue
+    const 值 = 部分[键].trim()
+    if (!值) continue
+    新[键] = 值
+  }
+  写存储(设置键, JSON.stringify(新))
+  return 新
+}
+
+function 主机名(地址) {
+  try {
+    return new URL(地址).host
+  } catch {
+    return 地址 || ''
+  }
+}
+
+// 浏览器直连最容易卡在「没代理、一直转圈」。给 120 秒上限，超时说人话。
+function 直连超时() {
+  return typeof AbortSignal !== 'undefined' && AbortSignal.timeout
+    ? AbortSignal.timeout(120_000)
+    : undefined
+}
+
+function 译超时(错误) {
+  if (错误?.name === 'TimeoutError' || /aborted|timeout/i.test(String(错误?.message ?? ''))) {
+    return new Error(
+      '请求超时（120 秒）：多半是网络或代理不通 —— 浏览器直连必须能访问该服务商，国内访问 Google 一般要开代理。',
+    )
+  }
+  return 错误
+}
+
+function 本地状态() {
+  const 设 = 本地设置()
+  const 提供 = 设.提供方 || 'gemini'
+  const 有密钥 = 提供 === '模拟' ? true : Boolean(设.密钥)
+  return {
+    提供方: 提供,
+    提供方名称:
+      提供 === 'ark'
+        ? '火山方舟 · Seedream'
+        : 提供 === 'openai'
+          ? 'OpenAI 兼容'
+          : 提供 === '模拟'
+            ? '模拟（不联网）'
+            : 'Google Gemini',
+    提供方列表: [
+      { 值: 'gemini', 名称: 'Google Gemini', 提示: '浏览器直连，走系统代理；key 只存本机' },
+      { 值: 'ark', 名称: '火山方舟 · Seedream', 提示: '国内可直连；模型填 ep-... 接入点' },
+      { 值: 'openai', 名称: 'OpenAI 兼容', 提示: '要填基址；浏览器直连可能被 CORS 拦' },
+      { 值: '模拟', 名称: '模拟（不联网）', 提示: '不调模型，返回内置示例图' },
+    ],
+    有密钥,
+    可生图: 有密钥,
+    图像模型:
+      设.图像模型 ||
+      (提供 === 'openai'
+        ? 'gpt-image-1'
+        : 提供 === 'ark'
+          ? 'doubao-seedream-4-0-250828'
+          : 'gemini-3-pro-image-preview'),
+    文本模型:
+      设.文本模型 ||
+      (提供 === 'openai'
+        ? 'gpt-4o-mini'
+        : 提供 === 'ark'
+          ? 'doubao-1-5-pro-32k-250115'
+          : 'gemini-3-flash-preview'),
+    地址: 设.地址 ? 主机名(设.地址) : '',
+    模拟: 提供 === '模拟',
+  }
+}
+
+function 译直连错误(状态码, 原文) {
+  const 尾 = String(原文 ?? '').replace(/\s+/g, ' ').slice(0, 240)
+  if (状态码 === 400) return `请求被拒（400）：模型可能不支持图片输入或参数不对。${尾}`
+  if (状态码 === 401 || 状态码 === 403) return `key 无效或没权限（${状态码}）：${尾}`
+  if (状态码 === 404) return `模型/接口不存在（404）：模型名写错了？${尾}`
+  if (状态码 === 429) return `配额或频率限制（429）：等一会儿或换 key。${尾}`
+  return `上游 ${状态码}：${尾}`
+}
+
+async function 直连Gemini(内容, 生成配置, 模型) {
+  const 设 = 本地设置()
+  if (!设.密钥) throw new Error('还没填 key：展开「模型设置」粘贴后点保存。')
+  const 址 = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(模型)}:generateContent?key=${encodeURIComponent(设.密钥)}`
+  const 响应 = await fetch(址, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ contents: [{ role: 'user', parts: 内容 }], generationConfig: 生成配置 }),
+    signal: 直连超时(),
+  })
+  const 文 = await 响应.text()
+  if (!响应.ok) throw new Error(译直连错误(响应.status, 文))
+  return JSON.parse(文)
+}
+
+function 转base64(块) {
+  return new Promise((好, 坏) => {
+    const 读 = new FileReader()
+    读.onload = () => 好(String(读.result).split(',')[1])
+    读.onerror = () => 坏(new Error('读取图片失败'))
+    读.readAsDataURL(块)
+  })
+}
+
+async function 直连生图(体) {
+  const 设 = 本地设置()
+  const 提供 = 设.提供方 || 'gemini'
+  const 提示词 = 体.提示词?.trim() || 生图提示词
+  if (提供 === '模拟') {
+    const 内置 = window.__示例图
+    if (!内置) throw new Error('单文件版缺少内置示例图')
+    return { 图片: 内置.split(',')[1], 类型: 'image/png', 说明: '模拟提供方：这是内置示例图，不是你的照片。' }
+  }
+  if (!设.密钥) throw new Error('还没填 key：展开「模型设置」粘贴后点保存。')
+
+  if (提供 === 'ark') {
+    const 基 = (设.地址 || 'https://ark.cn-beijing.volces.com/api/v3').replace(/\/+$/, '')
+    const 尺寸 = 体.比例 === '2:3' ? '1365x2048' : 体.比例 === '3:4' ? '1536x2048' : '2048x2048'
+    const 响应 = await fetch(`${基}/images/generations`, {
+      method: 'POST',
+      headers: { authorization: `Bearer ${设.密钥}`, 'content-type': 'application/json' },
+      body: JSON.stringify({
+        model: 设.图像模型 || 'doubao-seedream-4-0-250828',
+        prompt: 提示词,
+        image: `data:${体.类型 || 'image/jpeg'};base64,${体.图片}`,
+        size: 尺寸,
+        response_format: 'b64_json',
+        watermark: false,
+      }),
+      signal: 直连超时(),
+    })
+    const 文 = await 响应.text()
+    if (!响应.ok) throw new Error(译直连错误(响应.status, 文))
+    const 数据 = JSON.parse(文)
+    const 首张 = 数据?.data?.[0]
+    if (首张?.b64_json) return { 图片: 首张.b64_json, 类型: 'image/png', 说明: '' }
+    if (首张?.url) {
+      const 图响应 = await fetch(首张.url)
+      if (!图响应.ok) throw new Error(`下载结果图失败：${图响应.status}`)
+      return { 图片: await 转base64(await 图响应.blob()), 类型: 'image/png', 说明: '' }
+    }
+    throw new Error(`方舟没返回图片：${文.slice(0, 200)}`)
+  }
+
+  if (提供 === 'openai') {
+    const 基 = (设.地址 || 'https://api.openai.com/v1').replace(/\/+$/, '')
+    const 二进制 = await (await fetch(`data:${体.类型 || 'image/png'};base64,${体.图片}`)).blob()
+    const 表单 = new FormData()
+    表单.append('model', 设.图像模型 || 'gpt-image-1')
+    表单.append('prompt', 提示词)
+    表单.append('size', 体.比例 === '2:3' || 体.比例 === '3:4' ? '1024x1536' : '1024x1024')
+    表单.append('image', 二进制, 'input.png')
+    const 响应 = await fetch(`${基}/images/edits`, {
+      method: 'POST',
+      headers: { authorization: `Bearer ${设.密钥}` },
+      body: 表单,
+      signal: 直连超时(),
+    })
+    const 文 = await 响应.text()
+    if (!响应.ok) throw new Error(译直连错误(响应.status, 文))
+    const 数据 = JSON.parse(文)
+    const 首张 = 数据?.data?.[0]
+    if (首张?.b64_json) return { 图片: 首张.b64_json, 类型: 'image/png', 说明: 首张.revised_prompt ?? '' }
+    if (首张?.url) {
+      const 图响应 = await fetch(首张.url)
+      if (!图响应.ok) throw new Error(`下载结果图失败：${图响应.status}`)
+      return { 图片: await 转base64(await 图响应.blob()), 类型: 'image/png', 说明: '' }
+    }
+    throw new Error('图片服务没返回图片（既没有 b64_json 也没有 url）')
+  }
+
+  const 模型 = 设.图像模型 || 'gemini-3-pro-image-preview'
+  const 数据 = await 直连Gemini(
+    [
+      { inline_data: { mime_type: 体.类型 || 'image/jpeg', data: 体.图片 } },
+      { text: 提示词 },
+    ],
+    { responseModalities: ['TEXT', 'IMAGE'], imageConfig: { aspectRatio: 体.比例 || '3:4', imageSize: '1K' } },
+    模型,
+  )
+  const 片段 = 数据?.candidates?.[0]?.content?.parts ?? []
+  const 图 = 片段.find((项) => 项?.inlineData?.data ?? 项?.inline_data?.data)
+  const 文字 = 片段
+    .map((项) => 项?.text)
+    .filter(Boolean)
+    .join('\n')
+  if (!图) throw new Error(`模型只回了文字，没给图：${(文字 || '（空）').slice(0, 200)}`)
+  const 内容 = 图.inlineData ?? 图.inline_data
+  return { 图片: 内容.data, 类型: 内容.mimeType ?? 内容.mime_type ?? 'image/png', 说明: 文字 }
+}
+
+async function 直连人设(体) {
+  const 设 = 本地设置()
+  const 提供 = 设.提供方 || 'gemini'
+  const 提示词 = 体.提示词?.trim() || 人设提示词
+  if (提供 === '模拟') return 直连示例人设
+  if (!设.密钥) throw new Error('还没填 key：展开「模型设置」粘贴后点保存。')
+
+  let 文字 = ''
+  if (提供 === 'openai' || 提供 === 'ark') {
+    const 兜底基址 =
+      提供 === 'ark' ? 'https://ark.cn-beijing.volces.com/api/v3' : 'https://api.openai.com/v1'
+    const 基 = (设.地址 || 兜底基址).replace(/\/+$/, '')
+    const 响应 = await fetch(`${基}/chat/completions`, {
+      method: 'POST',
+      headers: { authorization: `Bearer ${设.密钥}`, 'content-type': 'application/json' },
+      body: JSON.stringify({
+        model: 设.文本模型 || (提供 === 'ark' ? 'doubao-1-5-pro-32k-250115' : 'gpt-4o-mini'),
+        messages: [
+          {
+            role: 'user',
+            content: [
+              { type: 'text', text: 提示词 },
+              { type: 'image_url', image_url: { url: `data:${体.类型 || 'image/jpeg'};base64,${体.图片}` } },
+            ],
+          },
+        ],
+      }),
+      signal: 直连超时(),
+    })
+    const 原文 = await 响应.text()
+    if (!响应.ok) throw new Error(译直连错误(响应.status, 原文))
+    文字 = JSON.parse(原文)?.choices?.[0]?.message?.content ?? ''
+  } else {
+    const 数据 = await 直连Gemini(
+      [
+        { inline_data: { mime_type: 体.类型 || 'image/jpeg', data: 体.图片 } },
+        { text: 提示词 },
+      ],
+      { responseMimeType: 'application/json', temperature: 0.9 },
+      设.文本模型 || 'gemini-3-flash-preview',
+    )
+    文字 = (数据?.candidates?.[0]?.content?.parts ?? [])
+      .map((项) => 项?.text)
+      .filter(Boolean)
+      .join('')
+  }
+  const 干净 = String(文字).replace(/```(?:json)?/gi, '').trim()
+  const 起 = 干净.indexOf('{')
+  const 止 = 干净.lastIndexOf('}')
+  if (起 < 0 || 止 <= 起) throw new Error(`人设不是 JSON：${干净.slice(0, 160)}`)
+  return JSON.parse(干净.slice(起, 止 + 1))
+}
+
+async function 直连测试() {
+  const 设 = 本地设置()
+  const 提供 = 设.提供方 || 'gemini'
+  if (提供 === '模拟') return { 成功: true, 说明: '模拟提供方，不需要联网。', 候选模型: [] }
+  if (!设.密钥) return { 成功: false, 说明: '还没填 key。', 候选模型: [] }
+  try {
+    if (提供 === 'ark') {
+      const 基 = (设.地址 || 'https://ark.cn-beijing.volces.com/api/v3').replace(/\/+$/, '')
+      const 响应 = await fetch(`${基}/chat/completions`, {
+        method: 'POST',
+        headers: { authorization: `Bearer ${设.密钥}`, 'content-type': 'application/json' },
+        body: JSON.stringify({
+          model: 设.文本模型 || 'doubao-1-5-pro-32k-250115',
+          messages: [{ role: 'user', content: 'ping' }],
+          max_tokens: 1,
+        }),
+        signal: 直连超时(),
+      })
+      const 原文 = await 响应.text()
+      if (!响应.ok) return { 成功: false, 说明: 译直连错误(响应.status, 原文), 候选模型: [] }
+      return {
+        成功: true,
+        说明: `连上火山方舟，key 有效。确认「图像模型」是已开通的 Seedream 接入点（${设.图像模型 || '未填'}）。`,
+        候选模型: [],
+      }
+    }
+    if (提供 === 'openai') {
+      const 基 = (设.地址 || 'https://api.openai.com/v1').replace(/\/+$/, '')
+      const 响应 = await fetch(`${基}/models`, {
+        headers: { authorization: `Bearer ${设.密钥}` },
+        signal: 直连超时(),
+      })
+      const 原文 = await 响应.text()
+      if (!响应.ok) return { 成功: false, 说明: 译直连错误(响应.status, 原文), 候选模型: [] }
+      const 名字们 = (JSON.parse(原文)?.data ?? []).map((项) => 项.id).filter(Boolean)
+      return { 成功: true, 说明: `连上了 ${主机名(基)}，模型 ${名字们.length} 个。`, 候选模型: 名字们.slice(0, 40) }
+    }
+    const 响应 = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models?key=${encodeURIComponent(设.密钥)}&pageSize=200`,
+      { signal: 直连超时() },
+    )
+    const 原文 = await 响应.text()
+    if (!响应.ok) return { 成功: false, 说明: 译直连错误(响应.status, 原文), 候选模型: [] }
+    const 全部 = (JSON.parse(原文)?.models ?? []).map((项) => String(项.name ?? '').replace(/^models\//, ''))
+    const 图像 = 全部.filter((名) => /image/i.test(名))
+    return {
+      成功: true,
+      说明: 图像.length
+        ? `key 有效，可用图像模型 ${图像.length} 个，例如 ${图像.slice(0, 3).join('、')}。`
+        : 'key 有效，但没看到 image 模型。',
+      候选模型: 图像.slice(0, 40),
+    }
+  } catch (错误) {
+    return {
+      成功: false,
+      说明: `浏览器直连失败：${错误.message}（可能是 CORS、网络或代理问题）`,
+      候选模型: [],
+    }
+  }
+}
+
+// 统一入口：有服务端走服务端，没服务端就在浏览器里直连。
+async function 调接口(路径, 体) {
+  if (!直连) {
+    const 参数 =
+      体 === undefined
+        ? {}
+        : { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(体) }
+    const 回 = await fetch(路径, 参数)
+    const 数据 = await 回.json().catch(() => ({ 错误: `服务端返回了非 JSON（${回.status}）` }))
+    if (!回.ok) throw new Error(数据.错误 || `请求失败（${回.status}）`)
+    return 数据
+  }
+  try {
+    if (路径 === '/api/状态') return 本地状态()
+    if (路径 === '/api/设置') {
+      存本地设置(体)
+      return {
+        ...本地状态(),
+        已写入: 存储可用 ? '当前浏览器的 localStorage' : '本次会话内存（此环境禁用存储）',
+        提醒: 存储可用 ? 'key 只保存在这台电脑的浏览器里。' : '这个预览环境禁用了存储，关闭页面后 key 需要重填。',
+      }
+    }
+    if (路径 === '/api/测试') return 直连测试()
+    if (路径 === '/api/生成') return 直连生图(体)
+    if (路径 === '/api/人设') return 直连人设(体)
+    throw new Error(`未知接口 ${路径}`)
+  } catch (错误) {
+    throw 译超时(错误)
+  }
+}
+
+async function 取状态() {
+  if (离线 && !直连) return null
+  try {
+    return await 调接口('/api/状态')
+  } catch {
+    return null
+  }
+}
+
+let 当前状态 = null
+
+function 设置提示(文字, 类别 = '') {
+  const 元素 = $('#设置提示')
+  元素.textContent = 文字
+  元素.className = `提示 ${类别}`
+}
+
+function 应用状态(状态, 回填 = false) {
+  if (离线 && !直连) {
+    $('#状态').textContent = '单文件版 · 无需服务端'
+    $('#状态').className = '徽标 好'
+    $('#生成').disabled = true
+    $('#人设').disabled = true
+    $('#生成').textContent = '① AI 生成（需服务端版）'
+    $('#人设').textContent = '② 人设卡（需服务端版）'
+    $('#设置区').hidden = true
+    提示('单文件版：本地像素化全部可用。点「载入示例照片」直接看效果，或上传你自己的照片。', '')
+    return
+  }
+  if (!状态) {
+    $('#状态').textContent = '服务端没响应'
+    $('#状态').className = '徽标 差'
+    提示('连不上服务端：确认 node 工具/立绘生成/服务端.mjs 还在跑，然后刷新页面。', '坏')
+    return
+  }
+  当前状态 = 状态
+  const 徽标 = $('#状态')
+  const 前缀 = 直连 ? '直连 · ' : ''
+  徽标.textContent = 前缀 + (状态.模拟
+    ? '模拟提供方 · 返回示例图'
+    : 状态.有密钥
+      ? `${状态.提供方名称} · ${状态.图像模型}`
+      : '未配密钥 · 只能本地像素化')
+  徽标.className = '徽标 ' + (状态.有密钥 ? (状态.模拟 ? '' : '好') : '差')
+  if (直连) {
+    提示(
+      存储可用
+        ? '直连模式：key 只保存在这台电脑的浏览器里（localStorage），只发给你选的那家服务商。'
+        : '这个页面被放在沙箱里预览（禁用了 localStorage）：能用，但 key 只在本次会话有效。建议直接用资源管理器双击打开这个 html。',
+      存储可用 ? '' : '坏',
+    )
+    // 浏览器直连走的是系统代理，页面里的代理栏用不上，藏起来免得误解
+    document.querySelector('#直连步骤').hidden = Boolean(状态.有密钥)
+    const 代理行 = document.querySelector('#代理')?.closest('label')
+    if (代理行) 代理行.hidden = true
+  }
+  if (直连 && !状态.有密钥) {
+    $('#设置区').open = true
+    设置提示('把 key 粘到上面「密钥」框里，点「保存并测试」。只想看流程就先把提供方切成「模拟」。', '')
+  }
+
+  const 选择 = $('#提供方')
+  if (选择.options.length === 0) {
+    for (const 项 of 状态.提供方列表 ?? []) {
+      const 选项 = document.createElement('option')
+      选项.value = 项.值
+      选项.textContent = 项.名称
+      选项.title = 项.提示 ?? ''
+      选择.append(选项)
+    }
+  }
+  if (!回填) return
+  选择.value = 状态.提供方
+  $('#图像模型').value = 状态.图像模型 ?? ''
+  $('#文本模型').value = 状态.文本模型 ?? ''
+  $('#代理').placeholder = 状态.代理
+    ? `当前：${状态.代理}（改了才需要填）`
+    : '例如 http://127.0.0.1:7890（Clash 默认端口）；国内用 Gemini 必填'
+  $('#地址').placeholder = 状态.地址
+    ? `当前：${状态.地址}（改了才需要填）`
+    : '仅「OpenAI 兼容」需要，例如 https://api.openai.com/v1'
+}
+
+async function 刷新状态(回填 = false) {
+  const 状态 = await 取状态()
+  应用状态(状态, 回填)
+  return 状态
+}
+
+// 既能加载同目录文件，也能加载内嵌的 data URI（单文件版用）。
+function 载图(网址) {
+  return new Promise((成功, 失败) => {
+    const 图 = new Image()
+    图.onload = () => 成功(图)
+    图.onerror = () => 失败(new Error('图片加载失败'))
+    图.src = 网址
+  })
+}
+
+function 从数据网址(数据, 类型) {
+  return new Promise((成功, 失败) => {
+    let 址
+    try {
+      址 = 数据转网址({ 图片: 数据, 类型 }, 类型)
+    } catch (错误) {
+      失败(错误)
+      return
+    }
+    const 图 = new Image()
+    图.onload = () => {
+      URL.revokeObjectURL(址)
+      成功(图)
+    }
+    图.onerror = () => {
+      URL.revokeObjectURL(址)
+      失败(new Error(`图片解不开（类型 ${类型 || '未知'}，base64 ${Math.round((数据?.length ?? 0) / 1024)} KB）`))
+    }
+    图.src = 址
+  })
+}
+
+// 第一段产出的写实全身照；「只重做第二步」要用它当输入。
+let 第一步结果 = null
+// 上一次点生成时用的自拍，供「只重做第一步」复用
+let 上次自拍 = null
+
+async function 生成(加强 = false) {
+  if (忙) return
+  if (离线 && !直连) return 提示('单文件版没有服务端，AI 功能用不了。要调模型：node 工具/立绘生成/服务端.mjs', '坏')
+  if (!源画布) return 提示('先上传一张照片', '坏')
+  const 状态 = 当前状态 ?? (await 刷新状态())
+  if (!状态?.可生图) {
+    return 提示('还没配好模型：展开「模型设置」填 key 并保存；不想联网就先把提供方切成「模拟」。', '坏')
+  }
+  const 两段 = $('#两段式').checked
+  忙 = true
+  const 按钮 = $('#生成')
+  按钮.disabled = true
+  按钮.textContent = 两段 ? '两段式生成中…' : '生成中…'
+  $('#重试').hidden = true
+  $('#第一步操作').hidden = true
+  try {
+    上次自拍 = 源画布.toDataURL('image/jpeg', 0.92).split(',')[1]
+    if (两段) {
+      第一步结果 = null
+      const 结 = await 跑第一步(加强, 状态)
+      if (!结.通过) {
+        // 卡在第一步就不再往下走 —— 第二段只会把一张半身照忠实地像素化
+        $('#第一步操作').hidden = false
+        提示(`第 1 步没通过：${结.校验.说明}。可以「只重做第一步」，或者「用这张继续」硬着头皮往下走。`, '坏')
+        return
+      }
+      await 跑第二步(加强)
+    } else {
+      提示(`正在调 ${状态.图像模型}，通常 10~40 秒…`)
+      const 基础 = $('#提示词').value.trim() || 生图提示词
+      const 数据 = await 调接口('/api/生成', {
+        图片: 上次自拍,
+        类型: 'image/jpeg',
+        提示词: 加强 ? `${基础}\n\n${全身加强提示}` : 基础,
+        阶段: '像素',
+        比例: '3:4',
+      })
+      隐藏中间图()
+      await 装入结果(数据)
+    }
+  } catch (错误) {
+    提示(错误.message, '坏')
+    记('生成失败', 错误.message)
+    // 两段式里第 1 步就挂了也留一个重试入口，别让页面卡死
+    if (两段 && 上次自拍) {
+      $('#第一步操作').hidden = false
+      const 盒 = $('#第一步状态')
+      盒.textContent = `第 1 步出错：${错误.message}`
+      盒.className = '小字 警示'
+    }
+  } finally {
+    忙 = false
+    按钮.disabled = false
+    按钮.textContent = '① AI 生成像素立绘'
+  }
+}
+
+// ---- 第 1 步：自拍 → 写实全身照 ----
+
+async function 跑第一步(加强, 状态 = 当前状态) {
+  提示(`第 1/2 步：生成写实全身照（${状态?.图像模型 ?? '模型'}）…`)
+  记('第1步请求', `加强=${加强}`)
+  let 数据 = await 调接口('/api/生成', {
+    图片: 上次自拍,
+    类型: 'image/jpeg',
+    提示词: 加强 ? `${全身照片提示词}\n\n${全身加强提示}` : 全身照片提示词,
+    阶段: '全身',
+    比例: '2:3',
+  })
+  记('第1步返回', `类型=${数据?.类型} base64=${Math.round((数据?.图片?.length ?? 0) / 1024)}KB`)
+  if (!数据?.图片) {
+    throw new Error(`第 1 步没拿到图片，服务端返回的是：${JSON.stringify(数据).slice(0, 160)}`)
+  }
+  let 校验 = await 校验全身照(数据)
+  记('第1步校验', 校验.说明)
+
+  // 自动补救一次：模型很爱交半身，第一次不过就带加强提示再来一张
+  if (!校验.是全身 && !加强) {
+    提示('第 1 步的构图不像全身，自动带加强提示重试一次…')
+    记('第1步自动重试')
+    数据 = await 调接口('/api/生成', {
+      图片: 上次自拍,
+      类型: 'image/jpeg',
+      提示词: `${全身照片提示词}\n\n${全身加强提示}`,
+      阶段: '全身',
+      比例: '2:3',
+    })
+    记('第1步重试返回', `类型=${数据?.类型} base64=${Math.round((数据?.图片?.length ?? 0) / 1024)}KB`)
+    if (!数据?.图片) {
+      throw new Error(`第 1 步重试也没拿到图片：${JSON.stringify(数据).slice(0, 160)}`)
+    }
+    校验 = await 校验全身照(数据)
+    记('第1步重试校验', 校验.说明)
+  }
+
+  第一步结果 = 数据
+  显示中间图(数据)
+  显示第一步状态(校验)
+  return { 数据, 校验, 通过: 校验.是全身 }
+}
+
+// 把中间产物转成像素数据来量「是不是全身」。
+// 容差试三档：棚拍底有时带一点渐变，固定 36 抠不干净会把「脚下那片背景」算成身体，
+// 半身和全身就分不出来了 —— 所以只要任意一档能判成全身就算过。
+async function 校验全身照(数据) {
+  const 图 = await 从数据网址(数据.图片, 数据.类型)
+  const 比 = Math.min(1, 900 / Math.max(图.width, 图.height))
+  const 画布 = document.createElement('canvas')
+  画布.width = Math.max(1, Math.round(图.width * 比))
+  画布.height = Math.max(1, Math.round(图.height * 比))
+  const 上下文 = 画布.getContext('2d', { willReadFrequently: true })
+  上下文.drawImage(图, 0, 0, 画布.width, 画布.height)
+  const 源 = { 数据: 上下文.getImageData(0, 0, 画布.width, 画布.height).data, 宽: 画布.width, 高: 画布.height }
+
+  let 兜底 = null
+  for (const 容差 of [36, 70, 110]) {
+    const 抠 = 抠背景(源, 容差)
+    const 结 = 分析全身(抠.图)
+    const 抠得合理 = 抠.抠除比例 > 0.1 && 抠.抠除比例 < 0.97
+    if (结.是全身) {
+      记('校验全身照', `容差 ${容差} 判全身（抠除 ${(抠.抠除比例 * 100).toFixed(0)}%）`)
+      return 结
+    }
+    if (!兜底 || (抠得合理 && !兜底.抠得合理)) 兜底 = { ...结, 抠得合理 }
+  }
+  return 兜底 ?? 分析全身(源)
+}
+
+function 显示第一步状态(校验) {
+  const 盒 = $('#第一步状态')
+  盒.textContent = `第 1 步校验：${校验.说明}`
+  盒.className = `小字 ${校验.是全身 ? '好' : '警示'}`
+}
+
+// ---- 第 2 步：全身照 → 像素立绘 ----
+
+async function 跑第二步(加强) {
+  if (!第一步结果) throw new Error('还没有全身照，先跑第 1 步')
+  提示('第 2/2 步：把全身照转成星露谷像素立绘…')
+  const 像素 = await 调接口('/api/生成', {
+    图片: 第一步结果.图片,
+    类型: 第一步结果.类型,
+    提示词: 加强 ? `${像素立绘提示词}\n\n${全身加强提示}` : 像素立绘提示词,
+    阶段: '像素',
+    比例: '3:4',
+  })
+  记('第2步返回', `类型=${像素?.类型} base64=${Math.round((像素?.图片?.length ?? 0) / 1024)}KB`)
+  await 装入结果(像素, true)
+}
+
+async function 装入结果(数据, 两段 = false) {
+  const 位图 = await 从数据网址(数据.图片, 数据.类型)
+  $('#抠背景').checked = true
+  $('#自动裁剪').checked = true
+  装入(位图, 1600)
+  const 结 = 全身校验()
+  提示(
+    结?.是全身
+      ? `${两段 ? '两段式完成' : '生成好了'}：全身构图通过，已抠背景、脚底对齐`
+      : '生成好了，但构图不像全身 —— 点下面的「重试」会带上加强提示再生成一次',
+    结?.是全身 ? '好' : '坏',
+  )
+}
+
+// base64 → Blob URL。比直接拼 data: URI 稳：几 MB 的图不会因为 URL 解析出问题，
+// 也能直接挂到 <a download> 上。
+function 数据转网址(数据, 类型) {
+  if (!数据?.图片) throw new Error('返回里没有图片数据（图片字段是空的）')
+  const 二进制 = atob(数据.图片)
+  const 字节 = new Uint8Array(二进制.length)
+  for (let i = 0; i < 二进制.length; i++) 字节[i] = 二进制.charCodeAt(i)
+  return URL.createObjectURL(new Blob([字节], { type: 数据.类型 || 类型 || 'image/png' }))
+}
+
+function 显示中间图(数据) {
+  const 盒 = $('#第一步状态')
+  const 图 = $('#中间图img')
+  let 址
+  try {
+    址 = 数据转网址(数据)
+  } catch (错误) {
+    盒.textContent = `第 1 步失败：${错误.message}`
+    盒.className = '小字 警示'
+    return
+  }
+  图.onerror = () => {
+    盒.textContent = `第 1 步的图打不开（类型 ${数据.类型 || '未知'}，base64 ${Math.round((数据.图片?.length ?? 0) / 1024)} KB）`
+    盒.className = '小字 警示'
+  }
+  图.src = 址
+  const 链 = $('#下载全身')
+  链.href = 址
+  链.download = '全身照.png'
+  $('#中间图').hidden = false
+}
+
+function 隐藏中间图() {
+  $('#中间图').hidden = true
+  const 图 = $('#中间图img')
+  if (图.src.startsWith('blob:')) URL.revokeObjectURL(图.src)
+  图.removeAttribute('src')
+  $('#第一步状态').textContent = ''
+  $('#第一步操作').hidden = true
+  第一步结果 = null
+}
+
+// 统一处理「按钮进入忙碌态 → 干活 → 恢复」，省得每个按钮抄一遍
+async function 执行(按钮, 文字, 工作) {
+  if (忙) return
+  忙 = true
+  const 原文 = 按钮.textContent
+  按钮.disabled = true
+  按钮.textContent = 文字
+  $('#第一步操作').hidden = true
+  try {
+    await 工作()
+  } catch (错误) {
+    提示(错误.message, '坏')
+    记('操作失败', 错误.message)
+  } finally {
+    忙 = false
+    按钮.disabled = false
+    按钮.textContent = 原文
+  }
+}
+
+// 全身校验：拿当前参数抠一遍背景，量一下主体是不是「头顶到脚底」的完整人形。
+function 全身校验() {
+  const 盒 = $('#全身状态')
+  const 重试 = $('#重试')
+  if (!源图) return null
+  const p = 读参数()
+  const 图 = p.抠背景 ? 抠背景(源图, p.容差).图 : 源图
+  const 结 = 分析全身(图)
+  盒.textContent = `全身校验：${结.说明}`
+  盒.className = `小字 ${结.是全身 ? '好' : '警示'}`
+  重试.hidden = 结.是全身
+  return 结
+}
+
+function 转义(值) {
+  return String(值 ?? '').replace(/[&<>"]/g, (字符) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[字符])
+}
+
+function 渲染人设(数据) {
+  const 卡 = $('#人设卡')
+  卡.hidden = false
+  卡.innerHTML = `
+    <h3>${转义(数据.名字) || '未命名'} · ${转义(数据.等级)}${数据.职业 ? ' · ' + 转义(数据.职业) : ''}</h3>
+    <p>“${转义(数据.台词)}”</p>
+    <p><i>生日</i> ${转义(数据.生日?.季节)} ${转义(数据.生日?.日)}</p>
+    <p><i>性格</i> ${转义(数据.性格)}</p>
+    <p><i>最爱</i> ${转义(数据.最爱的食物)}</p>
+    <p><i>喜欢</i> ${(数据.喜欢 ?? []).map(转义).join('、')}</p>
+    <p><i>讨厌</i> ${(数据.讨厌 ?? []).map(转义).join('、')}</p>
+    <p><i>宠物</i> ${转义(数据.宠物?.名字)} —— ${转义(数据.宠物?.描述)}</p>`
+}
+
+async function 生成人设() {
+  if (忙) return
+  if (离线 && !直连) return 提示('单文件版没有服务端，人设卡用不了', '坏')
+  if (!源画布) return 提示('先上传一张照片', '坏')
+  const 状态 = 当前状态 ?? (await 刷新状态())
+  if (!状态?.可生图) return 提示('还没配好模型：先去「模型设置」填 key 并保存。', '坏')
+  忙 = true
+  const 按钮 = $('#人设')
+  按钮.disabled = true
+  按钮.textContent = '写人设…'
+  提示(`正在调 ${状态.文本模型} 写人设…`)
+  try {
+    const 图 = 源画布.toDataURL('image/jpeg', 0.92).split(',')[1]
+    const 数据 = await 调接口('/api/人设', { 图片: 图, 类型: 'image/jpeg' })
+    渲染人设(数据)
+    提示('人设卡写好了', '好')
+  } catch (错误) {
+    提示(错误.message, '坏')
+  } finally {
+    忙 = false
+    按钮.disabled = false
+    按钮.textContent = '② 生成人设卡'
+  }
+}
+
+// ---- 事件 ----
+
+$('#落区').addEventListener('click', () => $('#文件').click())
+$('#落区').addEventListener('keydown', (事件) => {
+  if (事件.key === 'Enter' || 事件.key === ' ') $('#文件').click()
+})
+$('#文件').addEventListener('change', (事件) => 收文件(事件.target.files?.[0]))
+
+const 落区 = $('#落区')
+for (const 名 of ['dragenter', 'dragover']) {
+  落区.addEventListener(名, (事件) => {
+    事件.preventDefault()
+    落区.classList.add('悬停')
+  })
+}
+for (const 名 of ['dragleave', 'drop']) {
+  落区.addEventListener(名, (事件) => {
+    事件.preventDefault()
+    落区.classList.remove('悬停')
+  })
+}
+落区.addEventListener('drop', (事件) => 收文件(事件.dataTransfer?.files?.[0]))
+
+for (const 控件 of document.querySelectorAll('.参数 input, .参数 select')) {
+  控件.addEventListener('input', () => {
+    同步输出()
+    排重算()
+  })
+}
+
+// 自动裁剪开着的时候，缩放/偏移没意义，置灰避免误解。
+$('#自动裁剪').addEventListener('change', (事件) => {
+  const 关掉 = 事件.target.checked
+  for (const id of ['#缩放', '#偏移X', '#偏移Y']) $(id).disabled = 关掉
+  $('#抠背景').disabled = false
+  排重算()
+})
+
+$('#抠背景').addEventListener('change', () => {
+  $('#容差').disabled = !$('#抠背景').checked
+  排重算()
+})
+
+function 同步输出() {
+  for (const 控件 of document.querySelectorAll('.参数 input[type="range"]')) {
+    const 输出 = document.querySelector(`#${控件.id}值`)
+    if (!输出) continue
+    输出.textContent = 控件.id === '缩放' ? `${控件.value}%` : 控件.id.startsWith('偏移') ? `${控件.value}` : 控件.value
+  }
+}
+
+$('#生成').addEventListener('click', () => 生成(false))
+$('#重试').addEventListener('click', () => {
+  // 已经有全身照就只重做第二步，别再烧一次第一步
+  if (第一步结果) 执行($('#重试'), '重做第二步…', () => 跑第二步(true))
+  else 生成(true)
+})
+$('#只重做第一步').addEventListener('click', (事件) => {
+  if (!上次自拍) return 提示('先点一次「① AI 生成像素立绘」，有了自拍才能重做第 1 步', '坏')
+  执行(事件.currentTarget, '重做第 1 步…', async () => {
+    const 结 = await 跑第一步(true)
+    if (结.通过) {
+      $('#第一步操作').hidden = true
+      await 跑第二步(true)
+    } else {
+      $('#第一步操作').hidden = false
+      提示(`第 1 步还是不像全身：${结.校验.说明}`, '坏')
+    }
+  })
+})
+$('#继续第二步').addEventListener('click', (事件) =>
+  执行(事件.currentTarget, '第 2 步…', async () => {
+    await 跑第二步(true)
+  }),
+)
+$('#人设').addEventListener('click', 生成人设)
+
+// 只跑第 1 步：方便单独调「自拍 → 写实全身照」这一段，不用每次都为第 2 步付钱
+$('#只跑第一步').addEventListener('click', (事件) => {
+  if (!源画布) return 提示('先上传一张照片', '坏')
+  执行(事件.currentTarget, '跑第 1 步…', async () => {
+    上次自拍 = 源画布.toDataURL('image/jpeg', 0.92).split(',')[1]
+    第一步结果 = null
+    隐藏中间图()
+    const 状态 = 当前状态 ?? (await 刷新状态())
+    if (!状态?.可生图) {
+      提示('还没配好模型：展开「模型设置」填 key 并保存，或先点「保存并测试」。', '坏')
+      return
+    }
+    const 结 = await 跑第一步(false, 状态)
+    $('#第一步操作').hidden = false
+    提示(
+      结.通过
+        ? '第 1 步通过：想要像素立绘就点「用这张全身照继续」；不满意就「只重做第一步」'
+        : `第 1 步没通过：${结.校验.说明}。点「只重做第一步」会带加强提示再来一次`,
+      结.通过 ? '好' : '坏',
+    )
+  })
+})
+
+// 示例图是合成的占位头像（不是真人照片），只为让你不传图也能看到整条管线。
+$('#示例').addEventListener('click', async () => {
+  try {
+    const 位图 = await 载图(示例地址)
+    $('#抠背景').checked = true
+    $('#自动裁剪').checked = true
+    装入(位图, 1280)
+    全身校验()
+    隐藏中间图()
+    提示('已载入示例照片：背景是纯色，所以抠得很干净。换成你自己的照片试试。', '好')
+  } catch (错误) {
+    提示(`载入示例失败：${错误.message}`, '坏')
+  }
+})
+
+$('#下载').addEventListener('click', () => {
+  if (!结果) return
+  小画布.toBlob((块) => {
+    if (!块) return 提示('导出失败', '坏')
+    const 链接 = document.createElement('a')
+    链接.href = URL.createObjectURL(块)
+    链接.download = `立绘_${结果.宽}x${结果.高}.png`
+    链接.click()
+    setTimeout(() => URL.revokeObjectURL(链接.href), 2000)
+    提示(`已导出 ${结果.宽}×${结果.高} PNG`, '好')
+  }, 'image/png')
+})
+
+// ---- 模型设置 ----
+
+async function 保存设置() {
+  const 按钮 = $('#保存设置')
+  按钮.disabled = true
+  设置提示('正在保存…')
+  try {
+    const 体 = {
+      提供方: $('#提供方').value,
+      密钥: $('#密钥').value,
+      地址: $('#地址').value,
+      代理: $('#代理').value,
+      图像模型: $('#图像模型').value,
+      文本模型: $('#文本模型').value,
+    }
+    const 数据 = await 调接口('/api/设置', 体)
+    $('#密钥').value = ''
+    应用状态(数据, true)
+    设置提示(数据.提醒 || (数据.已写入 ? `已保存到${数据.已写入}` : '已保存'), '好')
+    await 测试连接()
+  } catch (错误) {
+    设置提示(错误.message, '坏')
+  } finally {
+    按钮.disabled = false
+  }
+}
+
+async function 测试连接() {
+  const 按钮 = $('#测试')
+  按钮.disabled = true
+  设置提示('正在测试连接…')
+  const 候选 = $('#候选模型')
+  候选.textContent = ''
+  try {
+    const 数据 = await 调接口('/api/测试', {})
+    设置提示(数据.说明, 数据.成功 ? '好' : '坏')
+    for (const 名 of 数据.候选模型 ?? []) {
+      const 块 = document.createElement('button')
+      块.type = 'button'
+      块.textContent = 名
+      块.title = '点一下填进「图像模型」'
+      块.addEventListener('click', () => {
+        $('#图像模型').value = 名
+        设置提示(`已填入 ${名}，记得点「保存并测试」`)
+      })
+      候选.append(块)
+    }
+  } catch (错误) {
+    设置提示(错误.message, '坏')
+  } finally {
+    按钮.disabled = false
+  }
+}
+
+$('#保存设置').addEventListener('click', 保存设置)
+$('#测试').addEventListener('click', 测试连接)
+$('#清除密钥').addEventListener('click', async () => {
+  try {
+    const 数据 = await 调接口('/api/设置', { 清空密钥: true })
+    $('#密钥').value = ''
+    应用状态(数据, true)
+    设置提示('已清除保存的 key', '好')
+  } catch (错误) {
+    设置提示(错误.message, '坏')
+  }
+})
+// 切提供方时把模型名一起换掉 —— 否则很容易拿着 Gemini 的 key 去调方舟的模型名
+const 模型默认 = {
+  gemini: { 图像模型: 'gemini-3-pro-image-preview', 文本模型: 'gemini-3-flash-preview' },
+  ark: { 图像模型: 'doubao-seedream-4-0-250828', 文本模型: 'doubao-1-5-pro-32k-250115' },
+  openai: { 图像模型: 'gpt-image-1', 文本模型: 'gpt-4o-mini' },
+  模拟: { 图像模型: '', 文本模型: '' },
+}
+
+$('#提供方').addEventListener('change', () => {
+  const 值 = $('#提供方').value
+  const 项 = (当前状态?.提供方列表 ?? []).find((条) => 条.值 === 值)
+  const 默 = 模型默认[值]
+  if (默) {
+    $('#图像模型').value = 默.图像模型
+    $('#文本模型').value = 默.文本模型
+  }
+  if (值 !== 'openai' && 值 !== 'ark') {
+    $('#地址').placeholder = '仅「OpenAI 兼容」需要，例如 https://api.openai.com/v1'
+  }
+  if (项?.提示) 设置提示(项.提示)
+})
+
+// 沙箱预览（没有 allow-same-origin）里存储不可用，直接挂个横幅告诉用户该怎么用
+if (!存储可用) {
+  const 横幅 = document.querySelector('#沙箱提示')
+  if (横幅) 横幅.hidden = false
+  记('环境', '沙箱预览：localStorage 不可用，已切到内存存储')
+}
+
+// 首次渲染：空状态
+画原图()
+同步输出()
+$('#版本').textContent = 版本
+$('#缩放').disabled = true
+$('#偏移X').disabled = true
+$('#偏移Y').disabled = true
+$('#容差').disabled = false
+
+刷新状态(true)
+
+</script>
+</body>
+</html>

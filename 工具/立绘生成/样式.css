@@ -1,0 +1,465 @@
+/* 立绘生成 · 星露谷土黄面板风 */
+:root {
+  --底: #241d2b;
+  --面板: #f3ddb0;
+  --面板-深: #e7cb94;
+  --边: #6b3f1d;
+  --墨: #3b2a17;
+  --墨-淡: #7a5a33;
+  --绿: #3f8f3a;
+  --绿-亮: #4aa244;
+  --金: #b9762b;
+  --红: #a83b32;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 22px 20px 36px;
+  background:
+    radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.05) 1px, transparent 0) 0 0 / 14px 14px,
+    var(--底);
+  color: #f0e6d2;
+  font: 14px/1.6 "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+}
+
+.顶栏 {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  max-width: 1180px;
+  margin: 0 auto 18px;
+  flex-wrap: wrap;
+}
+
+.顶栏 h1 {
+  margin: 0;
+  font-size: 26px;
+  letter-spacing: 2px;
+  color: #ffe1a3;
+  text-shadow: 2px 2px 0 #5b3413;
+}
+
+.副标题 {
+  margin: 4px 0 0;
+  color: #c8b79c;
+  font-size: 13px;
+}
+
+.徽标 {
+  padding: 6px 12px;
+  border: 2px solid #5b3413;
+  border-radius: 3px;
+  background: #6b3f1d;
+  color: #ffe1a3;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.徽标.好 { background: var(--绿); border-color: #265c24; }
+.徽标.差 { background: var(--红); border-color: #6d2019; }
+
+.两栏 {
+  display: grid;
+  grid-template-columns: 390px minmax(0, 1fr);
+  gap: 18px;
+  max-width: 1180px;
+  margin: 0 auto;
+  align-items: start;
+}
+
+.面板 {
+  background: var(--面板);
+  border: 3px solid var(--边);
+  border-radius: 5px;
+  color: var(--墨);
+  padding: 14px;
+  box-shadow: 0 6px 0 rgba(0, 0, 0, 0.28), inset 0 0 0 2px #fbf0d4;
+}
+
+.预览 {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 14px;
+}
+
+.落区 {
+  display: grid;
+  place-content: center;
+  gap: 4px;
+  min-height: 116px;
+  padding: 14px;
+  text-align: center;
+  border: 3px dashed #a8794a;
+  border-radius: 4px;
+  background: #fbf0d4;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.落区:hover,
+.落区.悬停 {
+  background: #ffeec2;
+  border-color: var(--金);
+}
+
+.落区 strong { font-size: 15px; }
+.落区 small { color: var(--墨-淡); font-size: 12px; }
+
+.行 {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.按钮 {
+  flex: 1 1 auto;
+  padding: 9px 12px;
+  border: 2px solid #5b3413;
+  border-radius: 3px;
+  background: #c9a468;
+  color: #3b2a17;
+  font: 600 13px/1.2 inherit;
+  cursor: pointer;
+  box-shadow: 0 3px 0 #8a6431;
+  transition: transform 0.05s, box-shadow 0.05s, background 0.15s;
+}
+
+.按钮:hover { background: #d8b678; }
+.按钮:active { transform: translateY(2px); box-shadow: 0 1px 0 #8a6431; }
+
+.按钮.主 {
+  background: var(--绿);
+  border-color: #265c24;
+  box-shadow: 0 3px 0 #1f4a1e;
+  color: #f2f7ea;
+}
+
+.按钮.主:hover { background: var(--绿-亮); }
+.按钮:disabled { opacity: 0.45; cursor: not-allowed; box-shadow: none; }
+
+.提示 {
+  margin: 10px 0 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--墨-淡);
+  min-height: 18px;
+}
+
+.提示.坏 { color: var(--红); }
+.提示.好 { color: #2f6b2c; }
+
+.折叠 {
+  margin-top: 10px;
+  border: 2px solid #c8a877;
+  border-radius: 3px;
+  background: #fbf0d4;
+  padding: 6px 8px;
+}
+
+.折叠 summary { cursor: pointer; font-size: 12px; color: var(--墨-淡); }
+
+.折叠 textarea {
+  width: 100%;
+  margin-top: 6px;
+  padding: 8px;
+  border: 2px solid #c8a877;
+  border-radius: 3px;
+  background: #fffaf0;
+  color: #3b2a17;
+  font: 12px/1.5 ui-monospace, Consolas, "Courier New", monospace;
+  resize: vertical;
+}
+
+.设置体 {
+  display: grid;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.设置体 label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #513a1e;
+}
+
+.设置体 input,
+.设置体 select {
+  flex: 1;
+  min-width: 0;
+  padding: 4px 6px;
+  border: 2px solid #c8a877;
+  border-radius: 3px;
+  background: #fffaf0;
+  color: #3b2a17;
+  font: 12px/1.4 ui-monospace, Consolas, "Courier New", monospace;
+}
+
+.设置体 input:focus,
+.设置体 select:focus {
+  outline: 2px solid var(--金);
+  outline-offset: -1px;
+}
+
+.候选 {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.候选 button {
+  padding: 2px 6px;
+  border: 1px solid #c8a877;
+  border-radius: 3px;
+  background: #fffaf0;
+  color: #513a1e;
+  font: 11px/1.4 ui-monospace, Consolas, monospace;
+  cursor: pointer;
+}
+
+.候选 button:hover { background: #ffeec2; }
+
+.小字 {
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--墨-淡);
+}
+
+.小字 code {
+  padding: 0 3px;
+  border-radius: 2px;
+  background: #efe0bd;
+  color: #513a1e;
+}
+
+.小字.好 { color: #2f6b2c; }
+.小字.警示 { color: var(--红); }
+
+.步骤 {
+  margin: 8px 0 0;
+  padding: 8px 10px 8px 26px;
+  border: 2px dashed #c8a877;
+  border-radius: 4px;
+  background: #fbf0d4;
+  color: #513a1e;
+}
+
+.步骤 li { margin: 2px 0; }
+
+#重试 { width: 100%; margin-top: 4px; }
+
+.选项行 label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  line-height: 1.4;
+  color: #513a1e;
+  cursor: pointer;
+}
+
+.中间图 {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 8px;
+  border: 2px solid #c8a877;
+  border-radius: 4px;
+  background: #fbf0d4;
+}
+
+.中间图 img {
+  width: 72px;
+  height: auto;
+  border: 2px solid #6b3f1d;
+  border-radius: 2px;
+}
+
+.中间图 a {
+  color: #8a4b12;
+  text-decoration: underline;
+}
+
+.诊断 {
+  max-height: 220px;
+  overflow: auto;
+  margin: 6px 0 0;
+  padding: 8px;
+  border: 2px solid #c8a877;
+  border-radius: 3px;
+  background: #fffaf0;
+  color: #3b2a17;
+  font: 11px/1.5 ui-monospace, Consolas, monospace;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.参数 {
+  margin: 12px 0 0;
+  padding: 10px 12px 12px;
+  border: 2px solid #c8a877;
+  border-radius: 4px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 12px;
+}
+
+.参数 legend {
+  padding: 0 6px;
+  font-size: 12px;
+  color: var(--墨-淡);
+  letter-spacing: 1px;
+}
+
+.参数 label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #513a1e;
+}
+
+.参数 label.长 { grid-column: 1 / -1; }
+.参数 select { flex: 1; }
+.参数 output { min-width: 34px; text-align: right; color: var(--墨-淡); font-variant-numeric: tabular-nums; }
+
+.参数 input[type="range"] {
+  flex: 1;
+  min-width: 60px;
+  accent-color: var(--金);
+}
+
+.参数 input[type="checkbox"] { accent-color: var(--绿); }
+
+.参数 select {
+  padding: 3px 6px;
+  border: 2px solid #c8a877;
+  border-radius: 3px;
+  background: #fffaf0;
+  color: #3b2a17;
+  font: inherit;
+}
+
+.窗 {
+  position: relative;
+  display: grid;
+  place-items: center;
+  padding: 8px;
+  border: 2px solid #c8a877;
+  border-radius: 4px;
+  background: #fbf0d4;
+}
+
+.窗 canvas {
+  width: 100%;
+  height: auto;
+  max-height: 420px;
+  object-fit: contain;
+  image-rendering: pixelated;
+  background: #efe0bd;
+}
+
+.棋盘 canvas {
+  background-image:
+    linear-gradient(45deg, #ded0ae 25%, transparent 25%),
+    linear-gradient(-45deg, #ded0ae 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #ded0ae 75%),
+    linear-gradient(-45deg, transparent 75%, #ded0ae 75%);
+  background-size: 16px 16px;
+  background-position: 0 0, 0 8px, 8px -8px, -8px 0;
+}
+
+.标签 {
+  position: absolute;
+  top: -1px;
+  left: 8px;
+  transform: translateY(-50%);
+  padding: 1px 8px;
+  background: var(--面板);
+  border: 2px solid #c8a877;
+  border-radius: 10px;
+  font-size: 11px;
+  color: var(--墨-淡);
+}
+
+.色板 {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  min-height: 24px;
+}
+
+.色块 {
+  width: 24px;
+  height: 24px;
+  border: 2px solid #6b3f1d;
+  border-radius: 2px;
+  cursor: copy;
+  padding: 0;
+}
+
+.信息 {
+  flex: 1;
+  font-size: 12px;
+  color: var(--墨-淡);
+  text-align: right;
+}
+
+.人设卡 {
+  grid-column: 1 / -1;
+  padding: 10px 12px;
+  border: 2px solid #c8a877;
+  border-radius: 4px;
+  background: #fbf0d4;
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.人设卡 h3 {
+  margin: 0 0 6px;
+  font-size: 15px;
+  color: #513a1e;
+}
+
+.人设卡 p { margin: 2px 0; color: #513a1e; }
+.人设卡 i { color: var(--墨-淡); font-style: normal; }
+
+footer {
+  max-width: 1180px;
+  margin: 18px auto 0;
+  color: #8d7f6c;
+  font-size: 12px;
+}
+
+footer code {
+  padding: 1px 5px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #d9c9a8;
+}
+
+@media (max-width: 900px) {
+  .两栏 { grid-template-columns: 1fr; }
+  .预览 { grid-template-columns: 1fr; }
+}
+
+.沙箱提示 {
+  max-width: 1180px;
+  margin: 0 auto 14px;
+  padding: 10px 14px;
+  border: 2px solid #a83b32;
+  border-radius: 4px;
+  background: #ffe9e6;
+  color: #7a2119;
+  font-size: 13px;
+  line-height: 1.6;
+}
