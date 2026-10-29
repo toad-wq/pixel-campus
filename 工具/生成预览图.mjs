@@ -1,6 +1,6 @@
 // 把整张地图渲染成 docs/preview.png，并校验分块拼装是否逐像素一致。
-import { paintGround, WORLD_W, WORLD_H } from '../src/ground.js'
-import { writePng } from './png.mjs'
+import { paintGround, WORLD_W, WORLD_H } from '../源码/地面渲染.js'
+import { writePng } from './图片编码.mjs'
 
 const CHUNK = 256
 const NX = Math.ceil(WORLD_W / CHUNK)
@@ -34,5 +34,5 @@ console.log(
     : `MISMATCH: ${diff} 个像素不同`,
 )
 
-writePng(new URL('../docs/preview.png', import.meta.url), composed, WORLD_W, WORLD_H)
-console.log('wrote docs/preview.png')
+writePng(new URL('../说明/预览图.png', import.meta.url), composed, WORLD_W, WORLD_H)
+console.log('wrote 说明/预览图.png')

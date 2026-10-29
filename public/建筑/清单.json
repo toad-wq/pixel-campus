@@ -1,4 +1,4 @@
-[
+﻿[
   {
     "id": "bldg_01",
     "cat": "teach",
@@ -14,7 +14,7 @@
       52,
       52
     ],
-    "file": "buildings/bldg_01.png"
+    "file": "建筑/建筑01.png"
   },
   {
     "id": "bldg_02",
@@ -31,7 +31,7 @@
       44,
       48
     ],
-    "file": "buildings/bldg_02.png"
+    "file": "建筑/建筑02.png"
   },
   {
     "id": "bldg_03",
@@ -48,7 +48,7 @@
       48,
       32
     ],
-    "file": "buildings/bldg_03.png"
+    "file": "建筑/建筑03.png"
   },
   {
     "id": "bldg_04",
@@ -65,7 +65,7 @@
       52,
       28
     ],
-    "file": "buildings/bldg_04.png"
+    "file": "建筑/建筑04.png"
   },
   {
     "id": "bldg_05",
@@ -82,7 +82,7 @@
       48,
       56
     ],
-    "file": "buildings/bldg_05.png"
+    "file": "建筑/建筑05.png"
   },
   {
     "id": "bldg_06",
@@ -99,7 +99,7 @@
       52,
       56
     ],
-    "file": "buildings/bldg_06.png"
+    "file": "建筑/建筑06.png"
   },
   {
     "id": "bldg_07",
@@ -116,7 +116,7 @@
       48,
       56
     ],
-    "file": "buildings/bldg_07.png"
+    "file": "建筑/建筑07.png"
   },
   {
     "id": "bldg_08",
@@ -133,7 +133,7 @@
       360,
       124
     ],
-    "file": "buildings/bldg_08.png"
+    "file": "建筑/建筑08.png"
   },
   {
     "id": "bldg_09",
@@ -150,7 +150,7 @@
       260,
       128
     ],
-    "file": "buildings/bldg_09.png"
+    "file": "建筑/建筑09.png"
   },
   {
     "id": "bldg_10",
@@ -167,7 +167,7 @@
       80,
       44
     ],
-    "file": "buildings/bldg_10.png"
+    "file": "建筑/建筑10.png"
   },
   {
     "id": "bldg_11",
@@ -184,7 +184,7 @@
       244,
       180
     ],
-    "file": "buildings/bldg_11.png"
+    "file": "建筑/建筑11.png"
   },
   {
     "id": "bldg_12",
@@ -201,7 +201,7 @@
       92,
       108
     ],
-    "file": "buildings/bldg_12.png"
+    "file": "建筑/建筑12.png"
   },
   {
     "id": "bldg_13",
@@ -218,7 +218,7 @@
       44,
       208
     ],
-    "file": "buildings/bldg_13.png"
+    "file": "建筑/建筑13.png"
   },
   {
     "id": "bldg_14",
@@ -235,7 +235,7 @@
       72,
       36
     ],
-    "file": "buildings/bldg_14.png"
+    "file": "建筑/建筑14.png"
   },
   {
     "id": "bldg_15",
@@ -252,7 +252,7 @@
       128,
       44
     ],
-    "file": "buildings/bldg_15.png"
+    "file": "建筑/建筑15.png"
   },
   {
     "id": "bldg_16",
@@ -269,7 +269,7 @@
       172,
       176
     ],
-    "file": "buildings/bldg_16.png"
+    "file": "建筑/建筑16.png"
   },
   {
     "id": "bldg_17",
@@ -286,7 +286,7 @@
       132,
       100
     ],
-    "file": "buildings/bldg_17.png"
+    "file": "建筑/建筑17.png"
   },
   {
     "id": "bldg_18",
@@ -303,7 +303,7 @@
       264,
       56
     ],
-    "file": "buildings/bldg_18.png"
+    "file": "建筑/建筑18.png"
   },
   {
     "id": "bldg_19",
@@ -320,7 +320,7 @@
       112,
       16
     ],
-    "file": "buildings/bldg_19.png"
+    "file": "建筑/建筑19.png"
   },
   {
     "id": "bldg_20",
@@ -337,7 +337,7 @@
       80,
       48
     ],
-    "file": "buildings/bldg_20.png"
+    "file": "建筑/建筑20.png"
   },
   {
     "id": "bldg_21",
@@ -354,7 +354,7 @@
       140,
       68
     ],
-    "file": "buildings/bldg_21.png"
+    "file": "建筑/建筑21.png"
   },
   {
     "id": "bldg_22",
@@ -371,7 +371,7 @@
       20,
       40
     ],
-    "file": "buildings/bldg_22.png"
+    "file": "建筑/建筑22.png"
   },
   {
     "id": "bldg_23",
@@ -388,6 +388,6 @@
       96,
       88
     ],
-    "file": "buildings/bldg_23.png"
+    "file": "建筑/建筑23.png"
   }
 ]

@@ -1,6 +1,6 @@
-import './style.css'
-import { WORLD_W, WORLD_H } from './ground.js'
-import { CHUNK, CHUNKS_X, CHUNKS_Y, bakeChunk, clearCache } from './chunk.js'
+﻿import './样式.css'
+import { WORLD_W, WORLD_H } from './地面渲染.js'
+import { CHUNK, CHUNKS_X, CHUNKS_Y, bakeChunk, clearCache } from './分块渲染.js'
 
 const app = document.querySelector('#app')
 

@@ -1,8 +1,8 @@
-// 地面：来自「延边大学（延吉校区）建筑分布图」的类别网格，星露谷像素风重绘。
+﻿// 地面：来自「延边大学（延吉校区）建筑分布图」的类别网格，星露谷像素风重绘。
 // 0=草地 1=铺装/道路 2=绿地 3=米黄楼(教学) 4=蓝楼(宿舍)
 
-import { pack, setPixel } from './pixel.js'
-import { MAP_W, MAP_H, CATS } from './mapdata.js'
+import { pack, setPixel } from './像素绘制.js'
+import { MAP_W, MAP_H, CATS } from './地图数据.js'
 
 export const CELL = 4
 export const WORLD_W = MAP_W * CELL

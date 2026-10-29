@@ -1,9 +1,9 @@
-// 分块管理器：把 1024×624 世界切成 4×3 = 12 块 256×256（边缘块更小）。
+﻿// 分块管理器：把 1024×624 世界切成 4×3 = 12 块 256×256（边缘块更小）。
 // 每块只光栅化一次，结果缓存成独立的 canvas（相当于一张纹理）；
 // 运行时只需要把 12 张纹理 drawImage 拼到一起。
 
-import { paintGround, WORLD_W, WORLD_H } from './ground.js'
-import { createFramebuffer, present } from './pixel.js'
+import { paintGround, WORLD_W, WORLD_H } from './地面渲染.js'
+import { createFramebuffer, present } from './像素绘制.js'
 
 export const CHUNK = 256
 export const CHUNKS_X = Math.ceil(WORLD_W / CHUNK) // 4
